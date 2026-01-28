@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLOW by Rayane | Budget Planner</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        flowBackground: '#FDFBF7',
+                        flowCard: '#F2EFE9',
+                        flowBlack: '#1A1A1A',
+                        flowGold: '#C5A059',
+                        flowGray: '#717171',
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FDFBF7;
+            color: #1A1A1A;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+        .flow-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Sidebar states */
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); }
+        
+        /* Overlay mobile */
+        #sidebarOverlay.active { opacity: 1; pointer-events: auto; }
+        #sidebarOverlay { opacity: 0; pointer-events: none; }
+
+        input:focus { outline: none; border-color: #C5A059; }
+        
+        .progress-bar { height: 6px; border-radius: 3px; overflow: hidden; background: #E5E1D8; }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease-out; }
+        
+        /* Glassmorphism subtle */
+        .glass { background: rgba(253, 251, 247, 0.8); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Mobile Overlay for Sidebar -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/40 z-[45] flow-transition lg:hidden"></div>
+
+    <!-- Mobile Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 glass border-b border-flowCard z-40 flex items-center justify-between px-6 lg:hidden">
+        <button id="menuToggle" class="p-2 -ml-2 text-flowBlack">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+        <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-10">
+        <button onclick="navigate('profile')" class="p-2 -mr-2 text-flowBlack">
+            <i data-lucide="user" class="w-6 h-6"></i>
+        </button>
+    </header>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-flowBackground border-r border-flowCard z-50 transform sidebar-closed lg:translate-x-0 flow-transition">
+        <div class="flex flex-col h-full p-8">
+            <div class="mb-12 flex items-center justify-between">
+                <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-14 mx-auto lg:mx-0">
+                <button id="closeSidebar" class="lg:hidden p-2 text-flowGray hover:text-flowBlack">
+                    <i data-lucide="x" class="w-7 h-7"></i>
+                </button>
+            </div>
+
+            <nav class="flex-1 space-y-2 overflow-y-auto pr-2" id="sidebarNav">
+                <button onclick="navigate('dashboard')" class="w-full flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-flowCard flow-transition text-sm font-medium">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span>Dashboard</span>
+                </button>
+                <div class="pt-6 pb-2 px-4 text-xs font-semibold text-flowGray uppercase tracking-wider">Catégories</div>
+                <div id="dynamicLinks" class="space-y-1"></div>
+            </nav>
+
+            <div class="mt-auto space-y-2">
+                <button onclick="openAddCategoryModal()" class="w-full flex items-center justify-center space-x-2 px-4 py-3 bg-flowBlack text-white rounded-xl text-sm font-medium hover:bg-opacity-90 flow-transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Nouvelle Catégorie</span>
+                </button>
+                <button onclick="navigate('profile')" class="w-full flex items-center space-x-4 px-4 py-3 rounded-xl hover:bg-flowCard flow-transition text-sm font-medium mt-4">
+                    <i data-lucide="user-cog" class="w-5 h-5"></i>
+                    <span>Mon Profil</span>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="lg:ml-72 min-h-screen pt-20 lg:pt-8 p-6 lg:p-12">
+        <div id="app-view" class="max-w-4xl mx-auto opacity-0 flow-transition">
+            <!-- Dynamic Content -->
+        </div>
+    </main>
+
+    <!-- Modals Overlay -->
+    <div id="modalOverlay" class="fixed inset-0 bg-flowBlack/20 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+        <!-- Modals content (Add Cat, Add Expense, Edit Budget) -->
+        <div id="addCategoryModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-8 shadow-2xl hidden transform flow-transition">
+            <h3 class="font-serif text-2xl mb-6">Nouvelle Catégorie</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-flowGray uppercase mb-1">Nom du budget</label>
+                    <input type="text" id="newCategoryName" placeholder="Ex: Sorties, Shopping..." class="w-full px-4 py-3 bg-flowCard rounded-xl border-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-flowGray uppercase mb-1">Icône (Lucide name)</label>
+                    <input type="text" id="newCategoryIcon" placeholder="Ex: shopping-bag, coffee..." class="w-full px-4 py-3 bg-flowCard rounded-xl border-none">
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button onclick="closeModal()" class="flex-1 py-3 text-sm font-medium text-flowGray">Annuler</button>
+                    <button onclick="createNewCategory()" class="flex-1 py-3 bg-flowBlack text-white rounded-xl text-sm font-medium">Créer</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="addExpenseModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-8 shadow-2xl hidden transform flow-transition">
+            <h3 class="font-serif text-2xl mb-6">Dépense - <span id="targetCatName"></span></h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-flowGray uppercase mb-1">Description</label>
+                    <input type="text" id="expenseDesc" placeholder="Ex: Déjeuner, Essence..." class="w-full px-4 py-3 bg-flowCard rounded-xl border-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-flowGray uppercase mb-1">Montant (MAD)</label>
+                    <input type="number" id="expenseAmount" placeholder="0.00" class="w-full px-4 py-3 bg-flowCard rounded-xl border-none">
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button onclick="closeModal()" class="flex-1 py-3 text-sm font-medium text-flowGray">Annuler</button>
+                    <button onclick="saveExpense()" class="flex-1 py-3 bg-flowBlack text-white rounded-xl text-sm font-medium">Ajouter</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="editBudgetsModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-8 shadow-2xl hidden transform flow-transition">
+            <h3 class="font-serif text-2xl mb-6 text-center">Modifier Objectifs</h3>
+            <div class="space-y-4">
+                <div><label class="block text-xs font-semibold text-flowGray uppercase mb-1">Journalier</label><input type="number" id="budgetDay" class="w-full px-4 py-3 bg-flowCard rounded-xl border-none"></div>
+                <div><label class="block text-xs font-semibold text-flowGray uppercase mb-1">Hebdo</label><input type="number" id="budgetWeek" class="w-full px-4 py-3 bg-flowCard rounded-xl border-none"></div>
+                <div><label class="block text-xs font-semibold text-flowGray uppercase mb-1">Mensuel</label><input type="number" id="budgetMonth" class="w-full px-4 py-3 bg-flowCard rounded-xl border-none"></div>
+                <div class="flex space-x-3 pt-4">
+                    <button onclick="closeModal()" class="flex-1 py-3 text-sm font-medium text-flowGray">Annuler</button>
+                    <button onclick="saveBudgets()" class="flex-1 py-3 bg-flowBlack text-white rounded-xl text-sm font-medium">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STATE ---
+        let state = {
+            profile: { name: '', whatsapp: '' },
+            currentView: 'dashboard',
+            categories: [
+                { id: 'cat_1', name: 'Courses', icon: 'shopping-cart', budget: { day: 100, week: 700, month: 3000 } },
+                { id: 'cat_2', name: 'Transport', icon: 'car', budget: { day: 50, week: 350, month: 1500 } },
+                { id: 'cat_3', name: 'Sorties', icon: 'glass-water', budget: { day: 200, week: 1400, month: 6000 } }
+            ],
+            expenses: []
+        };
+
+        // --- SIDEBAR LOGIC ---
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            if (open) {
+                sidebar.classList.remove('sidebar-closed');
+                sidebar.classList.add('sidebar-open');
+                overlay.classList.add('active');
+            } else {
+                sidebar.classList.add('sidebar-closed');
+                sidebar.classList.remove('sidebar-open');
+                overlay.classList.remove('active');
+            }
+        }
+
+        // --- NAVIGATION ---
+        function navigate(view) {
+            state.currentView = view;
+            toggleSidebar(false);
+            render();
+        }
+
+        // --- APP ENGINE ---
+        function init() {
+            const savedState = localStorage.getItem('flow_by_rayane_v2');
+            if (savedState) state = JSON.parse(savedState);
+
+            // Event Listeners
+            document.getElementById('menuToggle').addEventListener('click', () => toggleSidebar(true));
+            document.getElementById('closeSidebar').addEventListener('click', () => toggleSidebar(false));
+            document.getElementById('sidebarOverlay').addEventListener('click', () => toggleSidebar(false));
+
+            render();
+            lucide.createIcons();
+        }
+
+        function saveState() {
+            localStorage.setItem('flow_by_rayane_v2', JSON.stringify(state));
+        }
+
+        function render() {
+            const container = document.getElementById('app-view');
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                renderSidebarLinks();
+                if (state.currentView === 'dashboard') renderDashboard(container);
+                else if (state.currentView === 'profile') renderProfile(container);
+                else renderCategoryDetail(container, state.currentView);
+                
+                container.style.opacity = '1';
+                lucide.createIcons();
+            }, 150);
+        }
+
+        function renderSidebarLinks() {
+            const linksContainer = document.getElementById('dynamicLinks');
+            linksContainer.innerHTML = state.categories.map(cat => `
+                <button onclick="navigate('${cat.id}')" class="w-full flex items-center justify-between px-4 py-3 rounded-xl ${state.currentView === cat.id ? 'bg-flowGold text-white shadow-lg' : 'hover:bg-flowCard'} flow-transition text-sm font-medium">
+                    <div class="flex items-center space-x-4">
+                        <i data-lucide="${cat.icon || 'tag'}" class="w-5 h-5"></i>
+                        <span>${cat.name}</span>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        // --- VIEWS ---
+        function renderDashboard(container) {
+            let html = `
+                <div class="mb-10">
+                    <h1 class="font-serif text-4xl mb-2">Bonjour, ${state.profile.name || 'Rayane'}</h1>
+                    <p class="text-flowGray">Votre flux financier est sous contrôle.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            `;
+            state.categories.forEach(cat => {
+                const stats = calculateStats(cat.id);
+                const dayPerc = Math.min((stats.day / cat.budget.day) * 100, 100);
+                html += `
+                    <div onclick="navigate('${cat.id}')" class="bg-flowCard p-6 rounded-2xl cursor-pointer hover:shadow-xl flow-transition border border-white/50">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                    <i data-lucide="${cat.icon || 'tag'}" class="w-6 h-6 text-flowGold"></i>
+                                </div>
+                                <h3 class="font-semibold text-lg">${cat.name}</h3>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs mb-2 uppercase font-bold text-flowGray">
+                                    <span>${stats.day.toFixed(0)} MAD</span>
+                                    <span>${(cat.budget.day - stats.day).toFixed(0)} MAD Restant</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill bg-flowGold" style="width: ${dayPerc}%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function renderCategoryDetail(container, catId) {
+            const cat = state.categories.find(c => c.id === catId);
+            if (!cat) { navigate('dashboard'); return; }
+            const stats = calculateStats(catId);
+            const history = state.expenses.filter(e => e.catId === catId).sort((a,b) => b.timestamp - a.timestamp);
+
+            container.innerHTML = `
+                <div class="mb-10">
+                    <button onclick="navigate('dashboard')" class="text-[10px] font-bold uppercase text-flowGray flex items-center mb-4 tracking-widest">
+                        <i data-lucide="arrow-left" class="w-3 h-3 mr-2"></i> Dashboard
+                    </button>
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h1 class="font-serif text-5xl">${cat.name}</h1>
+                        <div class="flex space-x-3">
+                            <button onclick="openEditBudgetsModal()" class="px-5 py-3 border border-flowGold text-flowGold rounded-xl text-xs font-bold uppercase tracking-widest">Budget</button>
+                            <button onclick="openAddExpenseModal()" class="px-5 py-3 bg-flowBlack text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg">+ Dépense</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    ${renderStatCard('Journalier', stats.day, cat.budget.day)}
+                    ${renderStatCard('Hebdo', stats.week, cat.budget.week)}
+                    ${renderStatCard('Mensuel', stats.month, cat.budget.month)}
+                </div>
+                <div class="bg-white rounded-2xl p-8 border border-flowCard">
+                    <h3 class="font-serif text-2xl mb-8">Historique</h3>
+                    <div class="space-y-4">
+                        ${history.length > 0 ? history.map(e => `
+                            <div class="flex justify-between items-center py-3 border-b border-flowCard last:border-0 group">
+                                <div><p class="font-medium">${e.desc || 'Divers'}</p><p class="text-[10px] text-flowGray uppercase">${new Date(e.timestamp).toLocaleDateString()}</p></div>
+                                <div class="flex items-center space-x-4">
+                                    <p class="font-bold">-${e.amount.toFixed(0)} MAD</p>
+                                    <button onclick="deleteExpense('${e.id}')" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-center text-flowGray py-6">Rien à signaler.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStatCard(label, cur, limit) {
+            const p = Math.min((cur / limit) * 100, 100);
+            return `<div class="bg-flowCard p-6 rounded-2xl">
+                <p class="text-[10px] font-bold text-flowGray uppercase tracking-widest mb-4">${label}</p>
+                <p class="text-2xl font-serif mb-2">${cur.toFixed(0)} <span class="text-xs text-flowGray">/ ${limit} MAD</span></p>
+                <div class="progress-bar"><div class="progress-fill bg-flowGold" style="width: ${p}%"></div></div>
+            </div>`;
+        }
+
+        function renderProfile(container) {
+            container.innerHTML = `
+                <h1 class="font-serif text-4xl mb-10">Mon Profil</h1>
+                <div class="bg-white rounded-2xl p-8 border border-flowCard max-w-md">
+                    <div class="space-y-6">
+                        <div><label class="block text-xs font-bold uppercase text-flowGray mb-2">Nom</label><input type="text" id="profileName" value="${state.profile.name}" class="w-full p-4 bg-flowCard rounded-xl border-none"></div>
+                        <div><label class="block text-xs font-bold uppercase text-flowGray mb-2">WhatsApp (+212...)</label><input type="text" id="profileWA" value="${state.profile.whatsapp}" class="w-full p-4 bg-flowCard rounded-xl border-none"></div>
+                        <button onclick="saveProfile()" class="w-full py-4 bg-flowBlack text-white rounded-xl font-bold uppercase text-xs tracking-widest shadow-xl">Enregistrer</button>
+                        <button onclick="sendWhatsAppReport()" class="w-full py-4 border-2 border-green-500 text-green-600 rounded-xl font-bold uppercase text-xs tracking-widest mt-4">WhatsApp Rapport</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- LOGIC ---
+        function calculateStats(catId) {
+            const now = new Date();
+            const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const startWeek = startDay - (now.getDay() * 86400000);
+            const startMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            const catEx = state.expenses.filter(e => e.catId === catId);
+            return {
+                day: catEx.filter(e => e.timestamp >= startDay).reduce((s, e) => s + e.amount, 0),
+                week: catEx.filter(e => e.timestamp >= startWeek).reduce((s, e) => s + e.amount, 0),
+                month: catEx.filter(e => e.timestamp >= startMonth).reduce((s, e) => s + e.amount, 0)
+            };
+        }
+
+        function openModal(id) {
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            document.querySelectorAll('#modalOverlay > div').forEach(d => d.classList.add('hidden'));
+        }
+
+        function createNewCategory() {
+            const name = document.getElementById('newCategoryName').value;
+            const icon = document.getElementById('newCategoryIcon').value || 'tag';
+            if (!name) return;
+            const newCat = { id: 'cat_' + Date.now(), name, icon, budget: { day: 100, week: 700, month: 3000 }};
+            state.categories.push(newCat);
+            saveState();
+            closeModal();
+            navigate(newCat.id);
+        }
+
+        function openAddExpenseModal() {
+            const cat = state.categories.find(c => c.id === state.currentView);
+            document.getElementById('targetCatName').innerText = cat.name;
+            openModal('addExpenseModal');
+        }
+
+        function saveExpense() {
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const desc = document.getElementById('expenseDesc').value;
+            if (!amount) return;
+            state.expenses.push({ id: 'e' + Date.now(), catId: state.currentView, amount, desc, timestamp: Date.now() });
+            saveState();
+            closeModal();
+            render();
+        }
+
+        function deleteExpense(id) {
+            state.expenses = state.expenses.filter(e => e.id !== id);
+            saveState();
+            render();
+        }
+
+        function openEditBudgetsModal() {
+            const cat = state.categories.find(c => c.id === state.currentView);
+            document.getElementById('budgetDay').value = cat.budget.day;
+            document.getElementById('budgetWeek').value = cat.budget.week;
+            document.getElementById('budgetMonth').value = cat.budget.month;
+            openModal('editBudgetsModal');
+        }
+
+        function saveBudgets() {
+            const idx = state.categories.findIndex(c => c.id === state.currentView);
+            state.categories[idx].budget = {
+                day: parseFloat(document.getElementById('budgetDay').value),
+                week: parseFloat(document.getElementById('budgetWeek').value),
+                month: parseFloat(document.getElementById('budgetMonth').value)
+            };
+            saveState();
+            closeModal();
+            render();
+        }
+
+        function saveProfile() {
+            state.profile.name = document.getElementById('profileName').value;
+            state.profile.whatsapp = document.getElementById('profileWA').value;
+            saveState();
+            alert('Profil enregistré !');
+            render();
+        }
+
+        function sendWhatsAppReport() {
+            if (!state.profile.whatsapp) return alert('Numéro requis !');
+            let msg = `*FLOW by Rayane*\n\n`;
+            state.categories.forEach(c => {
+                const s = calculateStats(c.id);
+                msg += `*${c.name}*: Restant ${ (c.budget.month - s.month).toFixed(0) } MAD\n`;
+            });
+            window.open(`https://wa.me/${state.profile.whatsapp.replace(/\+/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
