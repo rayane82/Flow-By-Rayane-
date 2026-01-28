@@ -43,13 +43,24 @@
         }
         .flow-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* Sidebar Toggle Logic */
+        /* Sidebar Navigation States */
+        #sidebar {
+            width: 320px;
+            z-index: 50;
+        }
         .sidebar-open { transform: translateX(0); }
         .sidebar-closed { transform: translateX(-100%); }
         
-        /* Main Content Adjustments */
-        .main-expanded { margin-left: 0 !important; }
+        /* Layout logic */
+        #mainContent {
+            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (min-width: 1024px) {
+            .main-with-sidebar { margin-left: 320px; }
+            .main-without-sidebar { margin-left: 0; }
+        }
 
+        /* Overlay */
         #sidebarOverlay { 
             opacity: 0; 
             pointer-events: none; 
@@ -61,6 +72,7 @@
             pointer-events: auto; 
         }
 
+        /* Forms & Visuals */
         input:focus { outline: none; border-bottom: 2px solid #d6ba90; }
         .progress-bar { height: 4px; border-radius: 2px; overflow: hidden; background: #d6ba9033; }
         .progress-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease-in-out; }
@@ -76,7 +88,6 @@
         
         button:focus { outline: none; }
         
-        /* Ensure sidebar height */
         #sidebar {
             height: 100vh;
             height: -webkit-fill-available;
@@ -86,25 +97,25 @@
 <body class="font-sans antialiased">
 
     <!-- Mobile Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-flowGreen/40 backdrop-blur-sm z-[40] transition-opacity duration-300"></div>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-flowGreen/40 backdrop-blur-sm"></div>
 
-    <!-- Menu Toggle Button (Visible when sidebar is hidden) -->
-    <button id="menuToggle" class="fixed top-6 left-6 z-[45] p-3 bg-white/90 backdrop-blur rounded-full shadow-xl text-flowGreen border border-flowBorder active:scale-95 transition-all duration-300" onclick="toggleSidebar(true)">
+    <!-- Floating Toggle Button (Appears when sidebar is closed) -->
+    <button id="menuToggle" class="fixed top-6 left-6 z-[45] p-3 bg-white/90 backdrop-blur rounded-full shadow-xl text-flowGreen border border-flowBorder active:scale-95 transition-all duration-300 opacity-0 pointer-events-none" onclick="toggleSidebar(true)">
         <i data-lucide="menu" class="w-6 h-6"></i>
     </button>
 
     <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-flowBackground border-r border-flowBorder z-50 transform flow-transition flex flex-col shadow-2xl lg:shadow-none sidebar-open">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 bg-flowBackground border-r border-flowBorder transform flow-transition flex flex-col shadow-2xl lg:shadow-none sidebar-open">
         <div class="flex flex-col h-full overflow-hidden">
             
-            <!-- Sidebar Header with Logo and Internal Toggle Button -->
+            <!-- Sidebar Header -->
             <div class="flex flex-col items-center p-8 shrink-0 relative">
-                <!-- Internal Hide Button (The 3 bars requested) -->
-                <button id="hideSidebar" class="absolute top-6 left-6 p-2 text-flowGreen hover:text-flowGold transition-colors" aria-label="Masquer la barre" onclick="toggleSidebar(false)">
+                <!-- Toggle Button (inside sidebar) -->
+                <button id="hideSidebar" class="absolute top-6 left-6 p-2 text-flowGreen hover:text-flowGold transition-colors" aria-label="Masquer le menu" onclick="toggleSidebar(false)">
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
 
-                <!-- Close Button for Mobile (Alternative way to close) -->
+                <!-- Dedicated Close Button for Mobile -->
                 <button id="closeSidebarMobile" class="absolute top-6 right-6 p-2 text-flowGreen lg:hidden" aria-label="Fermer" onclick="toggleSidebar(false)">
                     <i data-lucide="x" class="w-7 h-7"></i>
                 </button>
@@ -116,8 +127,8 @@
                 </div>
             </div>
 
-            <!-- Sidebar Navigation Links -->
-            <div class="flex-1 overflow-y-auto px-6 pb-6 scroll-smooth">
+            <!-- Scrollable Links Area -->
+            <div class="flex-1 overflow-y-auto px-6 pb-6">
                 <nav class="space-y-1" id="sidebarNav">
                     <button onclick="navigate('dashboard')" class="w-full flex items-center space-x-4 px-5 py-4 rounded-xl hover:bg-white transition-all text-xs font-semibold uppercase tracking-widest active-nav-dashboard group">
                         <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:text-flowGold"></i>
@@ -126,12 +137,12 @@
                     
                     <div class="pt-8 pb-3 px-5 text-[10px] font-bold text-flowBrown uppercase tracking-[0.25em] opacity-60">Mes Budgets</div>
                     <div id="dynamicLinks" class="space-y-1">
-                        <!-- Categories injected here -->
+                        <!-- Dynamic categories go here -->
                     </div>
                 </nav>
             </div>
 
-            <!-- Sidebar Footer Actions -->
+            <!-- Fixed Footer Actions -->
             <div class="p-6 shrink-0 border-t border-flowBorder bg-flowBackground/50 space-y-3">
                 <button onclick="openAddCategoryModal()" class="w-full flex items-center justify-center space-x-3 px-4 py-4 btn-gold rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg">
                     <i data-lucide="plus" class="w-4 h-4"></i>
@@ -145,13 +156,13 @@
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <main id="mainContent" class="lg:ml-80 min-h-screen pt-20 lg:pt-16 p-6 lg:p-16 flex flex-col flow-transition">
+    <!-- Main Content -->
+    <main id="mainContent" class="min-h-screen pt-24 lg:pt-16 p-6 lg:p-16 flex flex-col main-with-sidebar">
         <div id="app-view" class="max-w-5xl mx-auto opacity-0 flow-transition flex-1 w-full">
-            <!-- Dynamic Content -->
+            <!-- Content injected via JS -->
         </div>
 
-        <!-- App Footer -->
+        <!-- Footer -->
         <footer class="mt-24 border-t border-flowBorder pt-16 pb-12 flex flex-col items-center space-y-6">
             <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-48 w-auto opacity-90 cursor-pointer hover:opacity-100 transition-all" onclick="navigate('dashboard')">
             <div class="text-center">
@@ -161,7 +172,7 @@
         </footer>
     </main>
 
-    <!-- Modals Overlay -->
+    <!-- Modals -->
     <div id="modalOverlay" class="fixed inset-0 bg-flowGreen/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <!-- New Category Modal -->
         <div id="addCategoryModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
@@ -231,7 +242,7 @@
     </div>
 
     <script>
-        // --- MULTI-PROFILE DATA STRUCTURE ---
+        // --- MULTI-PROFILE DATA ---
         let appState = {
             activeProfileId: null,
             profiles: []
@@ -289,7 +300,7 @@
             }
         }
 
-        // --- NAVIGATION & SIDEBAR LOGIC ---
+        // --- RESPONSIVE NAVIGATION LOGIC ---
         function toggleSidebar(open) {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -297,40 +308,41 @@
             const menuToggle = document.getElementById('menuToggle');
 
             if (open) {
-                // Montrer la barre
+                // Open Sidebar
                 sidebar.classList.remove('sidebar-closed');
                 sidebar.classList.add('sidebar-open');
                 
                 if (window.innerWidth < 1024) {
                     overlay.classList.add('active');
                 } else {
-                    mainContent.classList.remove('main-expanded');
+                    mainContent.classList.remove('main-without-sidebar');
+                    mainContent.classList.add('main-with-sidebar');
                 }
                 
-                // Cacher le bouton flottant (car on utilise le bouton interne maintenant)
+                // Hide floating menu icon
                 menuToggle.style.opacity = '0';
                 menuToggle.style.pointerEvents = 'none';
-                menuToggle.style.transform = 'scale(0.8)';
             } else {
-                // Cacher la barre
+                // Close Sidebar
                 sidebar.classList.remove('sidebar-open');
                 sidebar.classList.add('sidebar-closed');
                 
                 overlay.classList.remove('active');
                 
                 if (window.innerWidth >= 1024) {
-                    mainContent.classList.add('main-expanded');
+                    mainContent.classList.remove('main-with-sidebar');
+                    mainContent.classList.add('main-without-sidebar');
                 }
                 
-                // Faire réapparaître le bouton flottant
+                // Show floating menu icon
                 menuToggle.style.opacity = '1';
                 menuToggle.style.pointerEvents = 'auto';
-                menuToggle.style.transform = 'scale(1)';
             }
         }
 
         function navigate(view) {
             currentView = view;
+            // On mobile, auto-close sidebar when navigating
             if (window.innerWidth < 1024) {
                 toggleSidebar(false);
             }
@@ -339,7 +351,7 @@
         }
 
         function init() {
-            const saved = localStorage.getItem('flow_by_rayane_v10_multiprof');
+            const saved = localStorage.getItem('flow_by_rayane_v11_multiprof');
             if (saved) {
                 appState = JSON.parse(saved);
             } else {
@@ -354,21 +366,34 @@
                 appState.activeProfileId = firstProf.id;
             }
 
-            // Click on overlay to close sidebar
             document.getElementById('sidebarOverlay').addEventListener('click', () => toggleSidebar(false));
 
-            // Initial Sidebar State (Visible on Desktop)
+            // Set initial state based on screen size
             if (window.innerWidth >= 1024) {
                 toggleSidebar(true);
             } else {
                 toggleSidebar(false);
             }
 
+            // Watch for resize to adjust layout
+            window.addEventListener('resize', () => {
+                const sidebar = document.getElementById('sidebar');
+                if (window.innerWidth >= 1024) {
+                    if (sidebar.classList.contains('sidebar-open')) {
+                        document.getElementById('mainContent').classList.add('main-with-sidebar');
+                        document.getElementById('mainContent').classList.remove('main-without-sidebar');
+                    }
+                } else {
+                    document.getElementById('mainContent').classList.remove('main-with-sidebar');
+                    document.getElementById('mainContent').classList.add('main-without-sidebar');
+                }
+            });
+
             render();
         }
 
         function saveAppState() {
-            localStorage.setItem('flow_by_rayane_v10_multiprof', JSON.stringify(appState));
+            localStorage.setItem('flow_by_rayane_v11_multiprof', JSON.stringify(appState));
         }
 
         function render() {
@@ -395,7 +420,7 @@
         function renderSidebarLinks(prof) {
             const linksContainer = document.getElementById('dynamicLinks');
             linksContainer.innerHTML = prof.categories.map(cat => `
-                <button onclick="navigate('${cat.id}')" class="w-full flex items-center justify-between px-5 py-4 rounded-xl ${currentView === cat.id ? 'bg-white text-flowGold premium-shadow' : 'text-flowGreen/70 hover:bg-white hover:text-flowGreen'} transition-all text-xs font-semibold uppercase tracking-widest group">
+                <button onclick="navigate('${cat.id}')" class="w-full flex items-center justify-between px-5 py-4 rounded-xl ${currentView === cat.id ? 'bg-white text-flowGold premium-shadow' : 'text-flowGreen/70 hover:bg-white hover:text-flowGreen'} transition-all text-xs font-semibold uppercase tracking-widest group text-left">
                     <div class="flex items-center space-x-4">
                         <i data-lucide="${cat.icon || 'tag'}" class="w-5 h-5 group-hover:text-flowGold"></i>
                         <span>${cat.name}</span>
@@ -417,12 +442,12 @@
             }
         }
 
-        // --- DASHBOARD VIEW ---
+        // --- VIEWS ---
         function renderDashboard(container, prof) {
             let html = `
                 <div class="mb-16">
                     <h1 class="font-serif text-5xl lg:text-7xl mb-4 leading-tight text-flowGreen">Bonjour, <span class="text-flowBrown">${prof.name}</span></h1>
-                    <p class="text-flowBrown text-sm tracking-[0.1em] uppercase opacity-70">Tableau de bord de vos finances.</p>
+                    <p class="text-flowBrown text-sm tracking-[0.1em] uppercase opacity-70">Aperçu global de votre flux financier.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             `;
@@ -447,7 +472,7 @@
                         </div>
                         <div>
                             <div class="flex justify-between text-[10px] mb-3 uppercase font-bold text-flowGreen tracking-widest">
-                                <span>${dayPerc.toFixed(0)}% Consommé</span>
+                                <span>${dayPerc.toFixed(0)}%</span>
                                 <span class="text-flowBrown">${Math.max(0, cat.budget.day - stats.day).toFixed(0)} Restant</span>
                             </div>
                             <div class="progress-bar"><div class="progress-fill bg-flowGold" style="width: ${dayPerc}%"></div></div>
@@ -459,14 +484,13 @@
             container.innerHTML = html;
         }
 
-        // --- PROFILE VIEW ---
         function renderProfile(container, prof) {
             container.innerHTML = `
                 <h1 class="font-serif text-5xl mb-12 text-flowGreen">Profil & WhatsApp</h1>
                 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     <div class="bg-white rounded-2xl p-10 border border-flowBorder premium-shadow premium-card">
-                        <h3 class="font-serif text-2xl mb-8 text-flowBrown">Configuration Profile</h3>
+                        <h3 class="font-serif text-2xl mb-8 text-flowBrown">Configuration</h3>
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-[10px] font-bold uppercase text-flowBrown tracking-widest mb-2">Identité</label>
@@ -476,7 +500,7 @@
                                 <label class="block text-[10px] font-bold uppercase text-flowBrown tracking-widest mb-2">WhatsApp</label>
                                 <input type="text" id="editWA" value="${prof.whatsapp}" placeholder="+212..." class="w-full py-4 bg-transparent border-b border-flowBorder focus:border-flowGold text-xl font-serif text-flowGreen">
                             </div>
-                            <button onclick="updateActiveProfile()" class="w-full py-5 btn-gold rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-lg">Mettre à jour</button>
+                            <button onclick="updateActiveProfile()" class="w-full py-5 btn-gold rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-lg">Enregistrer</button>
                         </div>
 
                         <hr class="my-12 border-flowBorder">
@@ -497,7 +521,7 @@
 
                     <div class="bg-white rounded-2xl p-10 border border-flowBorder premium-shadow premium-card">
                         <div class="flex justify-between items-center mb-8">
-                            <h3 class="font-serif text-2xl text-flowBrown">Mes Profils</h3>
+                            <h3 class="font-serif text-2xl text-flowBrown">Profils Enregistrés</h3>
                             <button onclick="openModal('createProfileModal')" class="p-2 text-flowGold hover:text-flowGreen transition-colors"><i data-lucide="plus-circle" class="w-8 h-8"></i></button>
                         </div>
                         <div class="space-y-4">
@@ -524,7 +548,6 @@
             `;
         }
 
-        // --- CATEGORY DETAIL VIEW ---
         function renderCategoryDetail(container, prof, catId) {
             const cat = prof.categories.find(c => c.id === catId);
             if (!cat) { navigate('dashboard'); return; }
@@ -534,7 +557,7 @@
             container.innerHTML = `
                 <div class="mb-16">
                     <button onclick="navigate('dashboard')" class="text-[10px] font-bold uppercase text-flowGreen flex items-center mb-8 tracking-[0.2em] hover:text-flowGold transition-colors">
-                        <i data-lucide="arrow-left" class="w-4 h-4 mr-3"></i> Retour au Dashboard
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-3"></i> Retour Dashboard
                     </button>
                     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
                         <div class="flex items-center space-x-6">
@@ -543,7 +566,7 @@
                             </div>
                             <div>
                                 <h1 class="font-serif text-6xl text-flowGreen">${cat.name}</h1>
-                                <p class="text-[10px] text-flowBrown font-bold uppercase tracking-[0.3em] mt-2">${prof.name} — Maîtrise budgétaire</p>
+                                <p class="text-[10px] text-flowBrown font-bold uppercase tracking-[0.3em] mt-2">Détails du flux budgétaire</p>
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-4">
@@ -557,14 +580,14 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                    ${renderStatCard('Journalier', stats.day, cat.budget.day)}
-                    ${renderStatCard('Hebdomadaire', stats.week, cat.budget.week)}
-                    ${renderStatCard('Mensuel', stats.month, cat.budget.month)}
+                    ${renderStatCard('Aujourd\'hui', stats.day, cat.budget.day)}
+                    ${renderStatCard('Cette Semaine', stats.week, cat.budget.week)}
+                    ${renderStatCard('Ce Mois', stats.month, cat.budget.month)}
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 bg-white rounded-3xl p-10 border border-flowBorder premium-shadow premium-card">
-                         <h3 class="font-serif text-2xl mb-12 text-flowBrown">Tendances des 7 derniers jours</h3>
+                         <h3 class="font-serif text-2xl mb-12 text-flowBrown">Analyses des 7 derniers jours</h3>
                          <div class="h-96 relative"><canvas id="spendingChart"></canvas></div>
                     </div>
                     <div class="bg-white rounded-3xl p-10 border border-flowBorder premium-shadow premium-card">
@@ -573,7 +596,7 @@
                             ${history.length > 0 ? history.map(e => `
                                 <div class="flex justify-between items-center py-5 border-b border-flowBackground last:border-0 group animate-fadeIn">
                                     <div class="flex-1">
-                                        <p class="font-bold text-sm text-flowGreen mb-1 truncate">${e.desc || 'Sans description'}</p>
+                                        <p class="font-bold text-sm text-flowGreen mb-1 truncate">${e.desc || 'Divers'}</p>
                                         <p class="text-[9px] text-flowBrown uppercase font-bold tracking-widest">${new Date(e.timestamp).toLocaleDateString()}</p>
                                     </div>
                                     <div class="flex items-center space-x-5">
@@ -581,7 +604,7 @@
                                         <button onclick="deleteExpense('${e.id}')" class="text-flowGreen/30 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all active:scale-90"><i data-lucide="x" class="w-4 h-4"></i></button>
                                     </div>
                                 </div>
-                            `).join('') : '<div class="text-center py-16 opacity-40"><i data-lucide="clipboard-list" class="w-12 h-12 mx-auto mb-4"></i><p class="text-[10px] font-bold uppercase">Aucune dépense</p></div>'}
+                            `).join('') : '<div class="text-center py-16 opacity-40"><p class="text-[10px] font-bold uppercase">Aucune donnée</p></div>'}
                         </div>
                     </div>
                 </div>
@@ -603,7 +626,7 @@
             `;
         }
 
-        // --- CHART & CALCULATIONS ---
+        // --- CALCULATIONS ---
         function calculateStats(prof, catId) {
             const now = new Date();
             const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -658,26 +681,26 @@
             });
         }
 
-        // --- ACTIONS & PERSISTENCE ---
+        // --- HANDLERS ---
         function updateActiveProfile() {
             const prof = getActiveProfile();
             const newName = document.getElementById('editName').value.trim();
             const newWA = document.getElementById('editWA').value.trim();
-            if (!newName || !newWA) return alert('Champs obligatoires.');
+            if (!newName || !newWA) return alert('Champs requis.');
             prof.name = newName;
             prof.whatsapp = newWA;
             saveAppState();
-            alert('Profil mis à jour avec succès.');
+            alert('Profil mis à jour.');
             render();
         }
 
         function sendWhatsAppReport(period) {
             const prof = getActiveProfile();
-            if (!prof.whatsapp || prof.whatsapp.length < 10) return alert('Numéro WhatsApp invalide.');
+            if (!prof.whatsapp || prof.whatsapp.length < 10) return alert('Veuillez configurer un numéro WhatsApp valide.');
             
             let label = period === 'day' ? 'du Jour' : period === 'week' ? 'de la Semaine' : 'du Mois';
             let msg = `*FLOW by Rayane - Rapport ${label}*\n`;
-            msg += `_Propriété de : ${prof.name}_\n\n`;
+            msg += `_Utilisateur : ${prof.name}_\n\n`;
 
             prof.categories.forEach(cat => {
                 const s = calculateStats(prof, cat.id);
@@ -686,10 +709,10 @@
                 const perc = Math.min((val / (lim || 1)) * 100, 100).toFixed(0);
                 msg += `*${cat.name}*\n`;
                 msg += `💰 Dépensé: ${val.toFixed(0)} MAD\n`;
-                msg += `📊 Utilisation: ${perc}%\n\n`;
+                msg += `📈 Utilisation: ${perc}%\n\n`;
             });
 
-            msg += `_Optimisez votre flux avec FLOW_`;
+            msg += `_Envoyé via l'application FLOW_`;
             const url = `https://wa.me/${prof.whatsapp.replace(/\+/g, '').replace(/\s/g, '')}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
         }
@@ -710,7 +733,7 @@
             const prof = getActiveProfile();
             const amount = parseFloat(document.getElementById('expenseAmount').value);
             const desc = document.getElementById('expenseDesc').value.trim();
-            if (isNaN(amount) || amount <= 0) return alert('Montant invalide.');
+            if (isNaN(amount) || amount <= 0) return alert('Montant incorrect.');
             prof.expenses.push({ id: 'e' + Date.now(), catId: currentView, amount, desc, timestamp: Date.now() });
             saveAppState();
             closeModal();
@@ -740,7 +763,7 @@
         }
 
         function deleteCategory(id) {
-            if (confirm('Supprimer cette catégorie et toutes ses dépenses ?')) {
+            if (confirm('Supprimer cette catégorie définitivement ?')) {
                 const prof = getActiveProfile();
                 prof.categories = prof.categories.filter(c => c.id !== id);
                 prof.expenses = prof.expenses.filter(e => e.catId !== id);
@@ -749,7 +772,7 @@
             }
         }
 
-        // --- MODAL SYSTEM ---
+        // --- MODALS ---
         function openModal(id) { 
             document.getElementById('modalOverlay').classList.remove('hidden'); 
             document.getElementById(id).classList.remove('hidden'); 
