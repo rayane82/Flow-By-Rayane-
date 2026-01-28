@@ -369,6 +369,10 @@
             document.querySelectorAll('#modalOverlay > div').forEach(d => d.classList.add('hidden'));
         }
 
+        function openAddCategoryModal() {
+            openModal('addCategoryModal');
+        }
+
         function createNewCategory() {
             const name = document.getElementById('newCategoryName').value;
             const icon = document.getElementById('newCategoryIcon').value || 'tag';
@@ -382,16 +386,20 @@
 
         function openAddExpenseModal() {
             const cat = state.categories.find(c => c.id === state.currentView);
-            document.getElementById('targetCatName').innerText = cat.name;
+            document.getElementById('targetCatName').innerText = cat ? cat.name : "Général";
             openModal('addExpenseModal');
         }
 
         function saveExpense() {
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            const desc = document.getElementById('expenseDesc').value;
+            const amountInput = document.getElementById('expenseAmount');
+            const descInput = document.getElementById('expenseDesc');
+            const amount = parseFloat(amountInput.value);
+            const desc = descInput.value;
             if (!amount) return;
             state.expenses.push({ id: 'e' + Date.now(), catId: state.currentView, amount, desc, timestamp: Date.now() });
             saveState();
+            amountInput.value = '';
+            descInput.value = '';
             closeModal();
             render();
         }
@@ -404,6 +412,7 @@
 
         function openEditBudgetsModal() {
             const cat = state.categories.find(c => c.id === state.currentView);
+            if (!cat) return;
             document.getElementById('budgetDay').value = cat.budget.day;
             document.getElementById('budgetWeek').value = cat.budget.week;
             document.getElementById('budgetMonth').value = cat.budget.month;
@@ -412,6 +421,7 @@
 
         function saveBudgets() {
             const idx = state.categories.findIndex(c => c.id === state.currentView);
+            if (idx === -1) return;
             state.categories[idx].budget = {
                 day: parseFloat(document.getElementById('budgetDay').value),
                 week: parseFloat(document.getElementById('budgetWeek').value),
@@ -437,7 +447,7 @@
                 const s = calculateStats(c.id);
                 msg += `*${c.name}*: Restant ${ (c.budget.month - s.month).toFixed(0) } MAD\n`;
             });
-            window.open(`https://wa.me/${state.profile.whatsapp.replace(/\+/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/${state.profile.whatsapp.replace(/\+/g, '').replace(/\s/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         window.addEventListener('DOMContentLoaded', init);
