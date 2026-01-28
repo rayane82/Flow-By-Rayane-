@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -176,6 +178,8 @@
             expenses: []
         };
 
+        let currentChart = null;
+
         // --- SIDEBAR LOGIC ---
         function toggleSidebar(open) {
             const sidebar = document.getElementById('sidebar');
@@ -220,6 +224,12 @@
             const container = document.getElementById('app-view');
             container.style.opacity = '0';
             
+            // Cleanup Chart.js
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+
             setTimeout(() => {
                 renderSidebarLinks();
                 if (state.currentView === 'dashboard') renderDashboard(container);
@@ -246,7 +256,7 @@
         // --- VIEWS ---
         function renderDashboard(container) {
             let html = `
-                <div class="mb-10">
+                <div class="mb-10 text-center lg:text-left">
                     <h1 class="font-serif text-4xl mb-2">Bonjour, ${state.profile.name || 'Rayane'}</h1>
                     <p class="text-flowGray">Votre flux financier est sous contrôle.</p>
                 </div>
@@ -292,9 +302,12 @@
                     <button onclick="navigate('dashboard')" class="text-[10px] font-bold uppercase text-flowGray flex items-center mb-4 tracking-widest">
                         <i data-lucide="arrow-left" class="w-3 h-3 mr-2"></i> Dashboard
                     </button>
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <h1 class="font-serif text-5xl">${cat.name}</h1>
-                        <div class="flex space-x-3">
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="deleteCategory('${cat.id}')" class="p-3 text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-colors" title="Supprimer la catégorie">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
                             <button onclick="openEditBudgetsModal()" class="px-5 py-3 border border-flowGold text-flowGold rounded-xl text-xs font-bold uppercase tracking-widest">Budget</button>
                             <button onclick="openAddExpenseModal()" class="px-5 py-3 bg-flowBlack text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg">+ Dépense</button>
                         </div>
@@ -305,6 +318,15 @@
                     ${renderStatCard('Hebdo', stats.week, cat.budget.week)}
                     ${renderStatCard('Mensuel', stats.month, cat.budget.month)}
                 </div>
+
+                <!-- Trending Chart -->
+                <div class="bg-white rounded-2xl p-8 border border-flowCard mb-10 overflow-hidden">
+                    <h3 class="font-serif text-2xl mb-6">Tendances des Dépenses</h3>
+                    <div class="h-64 relative">
+                        <canvas id="spendingChart"></canvas>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-2xl p-8 border border-flowCard">
                     <h3 class="font-serif text-2xl mb-8">Historique</h3>
                     <div class="space-y-4">
@@ -320,6 +342,72 @@
                     </div>
                 </div>
             `;
+
+            // Initialize Chart after brief delay to ensure canvas is ready
+            setTimeout(() => initSpendingChart(catId), 50);
+        }
+
+        function initSpendingChart(catId) {
+            const canvas = document.getElementById('spendingChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const now = new Date();
+            const labels = [];
+            const data = [];
+            
+            // Get last 7 days of spending
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+                const dayStart = date.getTime();
+                const dayEnd = dayStart + 86400000;
+                
+                labels.push(date.toLocaleDateString('fr-FR', { weekday: 'short' }));
+                
+                const dayTotal = state.expenses
+                    .filter(e => e.catId === catId && e.timestamp >= dayStart && e.timestamp < dayEnd)
+                    .reduce((sum, e) => sum + e.amount, 0);
+                
+                data.push(dayTotal);
+            }
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Dépenses (MAD)',
+                        data: data,
+                        backgroundColor: '#C5A059',
+                        borderRadius: 8,
+                        barThickness: 20
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1A1A1A',
+                            titleFont: { family: 'Montserrat', size: 12 },
+                            bodyFont: { family: 'Montserrat', size: 14, weight: 'bold' },
+                            padding: 12,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#F2EFE9', drawBorder: false },
+                            ticks: { font: { family: 'Montserrat', size: 10 }, color: '#717171' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Montserrat', size: 10 }, color: '#717171' }
+                        }
+                    }
+                }
+            });
         }
 
         function renderStatCard(label, cur, limit) {
@@ -384,6 +472,15 @@
             navigate(newCat.id);
         }
 
+        function deleteCategory(catId) {
+            if (confirm('Voulez-vous vraiment supprimer cette catégorie de budget ? Toutes les dépenses associées seront également supprimées.')) {
+                state.categories = state.categories.filter(c => c.id !== catId);
+                state.expenses = state.expenses.filter(e => e.catId !== catId);
+                saveState();
+                navigate('dashboard');
+            }
+        }
+
         function openAddExpenseModal() {
             const cat = state.categories.find(c => c.id === state.currentView);
             document.getElementById('targetCatName').innerText = cat ? cat.name : "Général";
@@ -405,9 +502,11 @@
         }
 
         function deleteExpense(id) {
-            state.expenses = state.expenses.filter(e => e.id !== id);
-            saveState();
-            render();
+            if (confirm('Supprimer cette dépense ?')) {
+                state.expenses = state.expenses.filter(e => e.id !== id);
+                saveState();
+                render();
+            }
         }
 
         function openEditBudgetsModal() {
@@ -423,9 +522,9 @@
             const idx = state.categories.findIndex(c => c.id === state.currentView);
             if (idx === -1) return;
             state.categories[idx].budget = {
-                day: parseFloat(document.getElementById('budgetDay').value),
-                week: parseFloat(document.getElementById('budgetWeek').value),
-                month: parseFloat(document.getElementById('budgetMonth').value)
+                day: parseFloat(document.getElementById('budgetDay').value) || 0,
+                week: parseFloat(document.getElementById('budgetWeek').value) || 0,
+                month: parseFloat(document.getElementById('budgetMonth').value) || 0
             };
             saveState();
             closeModal();
