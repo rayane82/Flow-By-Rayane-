@@ -43,21 +43,20 @@
         }
         .flow-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* Sidebar Navigation States */
-        #sidebar {
-            width: 320px;
-            z-index: 50;
-        }
+        /* Sidebar Width */
+        #sidebar { width: 320px; z-index: 50; height: 100vh; height: -webkit-fill-available; }
+        
+        /* Sidebar States */
         .sidebar-open { transform: translateX(0); }
         .sidebar-closed { transform: translateX(-100%); }
         
-        /* Layout logic */
-        #mainContent {
-            transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        /* Main Content Layout States */
+        #mainContent { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Desktop: When sidebar is open, push content. When closed, margin-0. */
         @media (min-width: 1024px) {
-            .main-with-sidebar { margin-left: 320px; }
-            .main-without-sidebar { margin-left: 0; }
+            .sidebar-visible #mainContent { margin-left: 320px; }
+            .sidebar-hidden #mainContent { margin-left: 0; }
         }
 
         /* Overlay */
@@ -67,12 +66,9 @@
             transition: opacity 0.4s ease;
             z-index: 40;
         }
-        #sidebarOverlay.active { 
-            opacity: 1; 
-            pointer-events: auto; 
-        }
+        #sidebarOverlay.active { opacity: 1; pointer-events: auto; }
 
-        /* Forms & Visuals */
+        /* Visual Components */
         input:focus { outline: none; border-bottom: 2px solid #d6ba90; }
         .progress-bar { height: 4px; border-radius: 2px; overflow: hidden; background: #d6ba9033; }
         .progress-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease-in-out; }
@@ -87,19 +83,14 @@
         ::-webkit-scrollbar-thumb { background: #d6ba90; border-radius: 10px; }
         
         button:focus { outline: none; }
-        
-        #sidebar {
-            height: 100vh;
-            height: -webkit-fill-available;
-        }
     </style>
 </head>
-<body class="font-sans antialiased">
+<body class="font-sans antialiased sidebar-visible">
 
     <!-- Mobile Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-flowGreen/40 backdrop-blur-sm"></div>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-flowGreen/40 backdrop-blur-sm lg:hidden"></div>
 
-    <!-- Floating Toggle Button (Appears when sidebar is closed) -->
+    <!-- Floating Toggle Button (Visible when sidebar is hidden) -->
     <button id="menuToggle" class="fixed top-6 left-6 z-[45] p-3 bg-white/90 backdrop-blur rounded-full shadow-xl text-flowGreen border border-flowBorder active:scale-95 transition-all duration-300 opacity-0 pointer-events-none" onclick="toggleSidebar(true)">
         <i data-lucide="menu" class="w-6 h-6"></i>
     </button>
@@ -110,13 +101,8 @@
             
             <!-- Sidebar Header -->
             <div class="flex flex-col items-center p-8 shrink-0 relative">
-                <!-- Toggle Button (inside sidebar) -->
+                <!-- Close Button (Hamburger variant when open) -->
                 <button id="hideSidebar" class="absolute top-6 left-6 p-2 text-flowGreen hover:text-flowGold transition-colors" aria-label="Masquer le menu" onclick="toggleSidebar(false)">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
-
-                <!-- Dedicated Close Button for Mobile -->
-                <button id="closeSidebarMobile" class="absolute top-6 right-6 p-2 text-flowGreen lg:hidden" aria-label="Fermer" onclick="toggleSidebar(false)">
                     <i data-lucide="x" class="w-7 h-7"></i>
                 </button>
 
@@ -128,7 +114,7 @@
             </div>
 
             <!-- Scrollable Links Area -->
-            <div class="flex-1 overflow-y-auto px-6 pb-6">
+            <div class="flex-1 overflow-y-auto px-6 pb-6 scroll-smooth">
                 <nav class="space-y-1" id="sidebarNav">
                     <button onclick="navigate('dashboard')" class="w-full flex items-center space-x-4 px-5 py-4 rounded-xl hover:bg-white transition-all text-xs font-semibold uppercase tracking-widest active-nav-dashboard group">
                         <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:text-flowGold"></i>
@@ -157,7 +143,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main id="mainContent" class="min-h-screen pt-24 lg:pt-16 p-6 lg:p-16 flex flex-col main-with-sidebar">
+    <main id="mainContent" class="min-h-screen pt-24 lg:pt-16 p-6 lg:p-16 flex flex-col">
         <div id="app-view" class="max-w-5xl mx-auto opacity-0 flow-transition flex-1 w-full">
             <!-- Content injected via JS -->
         </div>
@@ -304,37 +290,33 @@
         function toggleSidebar(open) {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            const mainContent = document.getElementById('mainContent');
+            const body = document.body;
             const menuToggle = document.getElementById('menuToggle');
 
             if (open) {
-                // Open Sidebar
+                // Show Sidebar
                 sidebar.classList.remove('sidebar-closed');
                 sidebar.classList.add('sidebar-open');
+                body.classList.remove('sidebar-hidden');
+                body.classList.add('sidebar-visible');
                 
                 if (window.innerWidth < 1024) {
                     overlay.classList.add('active');
-                } else {
-                    mainContent.classList.remove('main-without-sidebar');
-                    mainContent.classList.add('main-with-sidebar');
                 }
                 
-                // Hide floating menu icon
+                // Hide floating hamburger button
                 menuToggle.style.opacity = '0';
                 menuToggle.style.pointerEvents = 'none';
             } else {
-                // Close Sidebar
+                // Hide Sidebar
                 sidebar.classList.remove('sidebar-open');
                 sidebar.classList.add('sidebar-closed');
+                body.classList.remove('sidebar-visible');
+                body.classList.add('sidebar-hidden');
                 
                 overlay.classList.remove('active');
                 
-                if (window.innerWidth >= 1024) {
-                    mainContent.classList.remove('main-with-sidebar');
-                    mainContent.classList.add('main-without-sidebar');
-                }
-                
-                // Show floating menu icon
+                // Show floating hamburger button
                 menuToggle.style.opacity = '1';
                 menuToggle.style.pointerEvents = 'auto';
             }
@@ -351,7 +333,7 @@
         }
 
         function init() {
-            const saved = localStorage.getItem('flow_by_rayane_v11_multiprof');
+            const saved = localStorage.getItem('flow_by_rayane_v12_multiprof');
             if (saved) {
                 appState = JSON.parse(saved);
             } else {
@@ -368,32 +350,18 @@
 
             document.getElementById('sidebarOverlay').addEventListener('click', () => toggleSidebar(false));
 
-            // Set initial state based on screen size
+            // Set initial state: Open on large screens, closed on mobile
             if (window.innerWidth >= 1024) {
                 toggleSidebar(true);
             } else {
                 toggleSidebar(false);
             }
 
-            // Watch for resize to adjust layout
-            window.addEventListener('resize', () => {
-                const sidebar = document.getElementById('sidebar');
-                if (window.innerWidth >= 1024) {
-                    if (sidebar.classList.contains('sidebar-open')) {
-                        document.getElementById('mainContent').classList.add('main-with-sidebar');
-                        document.getElementById('mainContent').classList.remove('main-without-sidebar');
-                    }
-                } else {
-                    document.getElementById('mainContent').classList.remove('main-with-sidebar');
-                    document.getElementById('mainContent').classList.add('main-without-sidebar');
-                }
-            });
-
             render();
         }
 
         function saveAppState() {
-            localStorage.setItem('flow_by_rayane_v11_multiprof', JSON.stringify(appState));
+            localStorage.setItem('flow_by_rayane_v12_multiprof', JSON.stringify(appState));
         }
 
         function render() {
@@ -447,7 +415,7 @@
             let html = `
                 <div class="mb-16">
                     <h1 class="font-serif text-5xl lg:text-7xl mb-4 leading-tight text-flowGreen">Bonjour, <span class="text-flowBrown">${prof.name}</span></h1>
-                    <p class="text-flowBrown text-sm tracking-[0.1em] uppercase opacity-70">Aperçu global de votre flux financier.</p>
+                    <p class="text-flowBrown text-sm tracking-[0.1em] uppercase opacity-70 italic">Équilibre financier en cours...</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             `;
@@ -505,7 +473,7 @@
 
                         <hr class="my-12 border-flowBorder">
 
-                        <h3 class="font-serif text-2xl mb-8 text-flowBrown">Rapport WhatsApp</h3>
+                        <h3 class="font-serif text-2xl mb-8 text-flowBrown">Rapports WhatsApp</h3>
                         <div class="grid grid-cols-1 gap-4">
                             <button onclick="sendWhatsAppReport('day')" class="py-5 border border-green-700 text-green-700 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-green-50 transition-all flex items-center justify-center">
                                 <i data-lucide="message-square" class="w-4 h-4 mr-3"></i> Rapport du Jour
@@ -521,7 +489,7 @@
 
                     <div class="bg-white rounded-2xl p-10 border border-flowBorder premium-shadow premium-card">
                         <div class="flex justify-between items-center mb-8">
-                            <h3 class="font-serif text-2xl text-flowBrown">Profils Enregistrés</h3>
+                            <h3 class="font-serif text-2xl text-flowBrown">Tous les Profils</h3>
                             <button onclick="openModal('createProfileModal')" class="p-2 text-flowGold hover:text-flowGreen transition-colors"><i data-lucide="plus-circle" class="w-8 h-8"></i></button>
                         </div>
                         <div class="space-y-4">
@@ -557,7 +525,7 @@
             container.innerHTML = `
                 <div class="mb-16">
                     <button onclick="navigate('dashboard')" class="text-[10px] font-bold uppercase text-flowGreen flex items-center mb-8 tracking-[0.2em] hover:text-flowGold transition-colors">
-                        <i data-lucide="arrow-left" class="w-4 h-4 mr-3"></i> Retour Dashboard
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-3"></i> Dashboard
                     </button>
                     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
                         <div class="flex items-center space-x-6">
@@ -566,32 +534,32 @@
                             </div>
                             <div>
                                 <h1 class="font-serif text-6xl text-flowGreen">${cat.name}</h1>
-                                <p class="text-[10px] text-flowBrown font-bold uppercase tracking-[0.3em] mt-2">Détails du flux budgétaire</p>
+                                <p class="text-[10px] text-flowBrown font-bold uppercase tracking-[0.3em] mt-2">Maîtrise budgétaire active</p>
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-4">
                             <button onclick="deleteCategory('${cat.id}')" class="p-4 text-red-400 bg-white rounded-xl border border-flowBorder hover:bg-red-50 transition-colors shadow-sm"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
-                            <button onclick="openEditBudgetsModal()" class="px-8 py-4 border border-flowGold text-flowGold rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Objectifs</button>
+                            <button onclick="openEditBudgetsModal()" class="px-8 py-4 border border-flowGold text-flowGold rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Modifier Objectifs</button>
                             <button onclick="openAddExpenseModal()" class="px-8 py-4 btn-gold rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-xl flex items-center">
-                                <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Nouvelle Dépense
+                                <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> Ajouter Dépense
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                    ${renderStatCard('Aujourd\'hui', stats.day, cat.budget.day)}
-                    ${renderStatCard('Cette Semaine', stats.week, cat.budget.week)}
-                    ${renderStatCard('Ce Mois', stats.month, cat.budget.month)}
+                    ${renderStatCard('Journalier', stats.day, cat.budget.day)}
+                    ${renderStatCard('Hebdomadaire', stats.week, cat.budget.week)}
+                    ${renderStatCard('Mensuel', stats.month, cat.budget.month)}
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 bg-white rounded-3xl p-10 border border-flowBorder premium-shadow premium-card">
-                         <h3 class="font-serif text-2xl mb-12 text-flowBrown">Analyses des 7 derniers jours</h3>
+                         <h3 class="font-serif text-2xl mb-12 text-flowBrown">Tendances des 7 derniers jours</h3>
                          <div class="h-96 relative"><canvas id="spendingChart"></canvas></div>
                     </div>
                     <div class="bg-white rounded-3xl p-10 border border-flowBorder premium-shadow premium-card">
-                        <h3 class="font-serif text-2xl mb-10 text-flowBrown">Historique</h3>
+                        <h3 class="font-serif text-2xl mb-10 text-flowBrown">Dernières Dépenses</h3>
                         <div class="space-y-6 max-h-[500px] overflow-y-auto pr-3">
                             ${history.length > 0 ? history.map(e => `
                                 <div class="flex justify-between items-center py-5 border-b border-flowBackground last:border-0 group animate-fadeIn">
@@ -600,11 +568,11 @@
                                         <p class="text-[9px] text-flowBrown uppercase font-bold tracking-widest">${new Date(e.timestamp).toLocaleDateString()}</p>
                                     </div>
                                     <div class="flex items-center space-x-5">
-                                        <p class="font-serif text-xl text-flowGreen">-${e.amount.toFixed(0)} <span class="text-[10px]">MAD</span></p>
+                                        <p class="font-serif text-xl text-flowGreen">-${e.amount.toFixed(0)} MAD</p>
                                         <button onclick="deleteExpense('${e.id}')" class="text-flowGreen/30 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all active:scale-90"><i data-lucide="x" class="w-4 h-4"></i></button>
                                     </div>
                                 </div>
-                            `).join('') : '<div class="text-center py-16 opacity-40"><p class="text-[10px] font-bold uppercase">Aucune donnée</p></div>'}
+                            `).join('') : '<div class="text-center py-16 opacity-40"><p class="text-[10px] font-bold uppercase">Historique vide</p></div>'}
                         </div>
                     </div>
                 </div>
@@ -626,7 +594,7 @@
             `;
         }
 
-        // --- CALCULATIONS ---
+        // --- CALCS ---
         function calculateStats(prof, catId) {
             const now = new Date();
             const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -696,7 +664,7 @@
 
         function sendWhatsAppReport(period) {
             const prof = getActiveProfile();
-            if (!prof.whatsapp || prof.whatsapp.length < 10) return alert('Veuillez configurer un numéro WhatsApp valide.');
+            if (!prof.whatsapp || prof.whatsapp.length < 10) return alert('Numéro WhatsApp invalide.');
             
             let label = period === 'day' ? 'du Jour' : period === 'week' ? 'de la Semaine' : 'du Mois';
             let msg = `*FLOW by Rayane - Rapport ${label}*\n`;
@@ -709,10 +677,11 @@
                 const perc = Math.min((val / (lim || 1)) * 100, 100).toFixed(0);
                 msg += `*${cat.name}*\n`;
                 msg += `💰 Dépensé: ${val.toFixed(0)} MAD\n`;
-                msg += `📈 Utilisation: ${perc}%\n\n`;
+                msg += `📉 Restant: ${Math.max(0, lim - val).toFixed(0)} MAD\n`;
+                msg += `📊 Utilisation: ${perc}%\n\n`;
             });
 
-            msg += `_Envoyé via l'application FLOW_`;
+            msg += `_Optimisez votre flux avec FLOW by Rayane_`;
             const url = `https://wa.me/${prof.whatsapp.replace(/\+/g, '').replace(/\s/g, '')}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
         }
