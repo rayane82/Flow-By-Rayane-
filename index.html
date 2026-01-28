@@ -39,6 +39,7 @@
             color: #384e35;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
+            scroll-behavior: smooth;
         }
         .flow-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         
@@ -82,6 +83,9 @@
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #d6ba90; border-radius: 10px; }
+
+        /* Ensuring focus state doesn't look bad on mobile buttons */
+        button:focus { outline: none; }
     </style>
 </head>
 <body class="font-sans antialiased">
@@ -89,47 +93,44 @@
     <!-- Mobile Overlay for Sidebar -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/20 z-[45] flow-transition lg:hidden"></div>
 
-    <!-- Top Bar -->
-    <header class="fixed top-0 left-0 right-0 h-16 glass border-b border-flowBorder z-40 flex items-center justify-between px-6">
-        <div class="flex items-center">
-            <button id="menuToggle" class="p-2 -ml-2 text-flowGreen lg:hidden">
-                <i data-lucide="menu" class="w-6 h-6"></i>
-            </button>
-            <div class="flex items-center space-x-3 ml-2 lg:ml-0">
-                <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-10">
-                <span class="font-serif text-lg font-bold text-flowGreen hidden sm:block">FLOW By Rayane</span>
-            </div>
-        </div>
-        <button onclick="navigate('profile')" class="p-2 -mr-2 text-flowGreen">
-            <i data-lucide="user" class="w-6 h-6"></i>
-        </button>
-    </header>
+    <!-- Floating Menu Button for Mobile (Since top bar is removed) -->
+    <button id="menuToggle" class="fixed top-6 left-6 z-[60] p-3 bg-white/80 backdrop-blur rounded-full shadow-lg text-flowGreen lg:hidden border border-flowBorder">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-flowBackground border-r border-flowBorder z-50 transform sidebar-closed lg:translate-x-0 flow-transition pt-16">
-        <div class="flex flex-col h-full p-8">
-            <div class="mb-12 flex items-center justify-between lg:hidden">
-                <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-12">
-                <button id="closeSidebar" class="p-2 text-flowGreen">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-flowBackground border-r border-flowBorder z-50 transform sidebar-closed lg:translate-x-0 flow-transition pt-10 overflow-hidden flex flex-col">
+        <div class="flex flex-col h-full p-8 overflow-y-auto">
+            <!-- Branding Sidebar Section (Visible above Dashboard) -->
+            <div class="flex flex-col items-center mb-8 shrink-0">
+                <!-- Agrandissement du logo dans la barre de navigation -->
+                <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-64 w-auto mb-4 object-contain cursor-pointer hover:scale-105 transition-transform" onclick="navigate('dashboard')">
+                <div class="text-center">
+                    <h2 class="font-serif text-2xl font-bold text-flowGreen leading-tight">Flow By Rayane</h2>
+                </div>
+                
+                <!-- Close Button for Mobile only -->
+                <button id="closeSidebar" class="mt-4 p-2 text-flowGreen lg:hidden" aria-label="Fermer">
                     <i data-lucide="x" class="w-7 h-7"></i>
                 </button>
             </div>
 
-            <nav class="flex-1 space-y-3 overflow-y-auto pr-2" id="sidebarNav">
-                <button onclick="navigate('dashboard')" class="w-full flex items-center space-x-4 px-5 py-3 rounded-lg hover:bg-white premium-shadow flow-transition text-xs font-semibold uppercase tracking-widest ${state.currentView === 'dashboard' ? 'text-flowGold' : 'text-flowGreen'}">
+            <nav class="flex-1 space-y-2 mb-6" id="sidebarNav">
+                <button onclick="navigate('dashboard')" class="w-full flex items-center space-x-4 px-5 py-3 rounded-lg hover:bg-white premium-shadow transition-all text-xs font-semibold uppercase tracking-widest active-nav-dashboard">
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
-                    <span>Dashboard</span>
+                    <span>Dashboard Général</span>
                 </button>
-                <div class="pt-8 pb-3 px-5 text-[10px] font-bold text-flowBrown uppercase tracking-[0.2em]">Catégories</div>
-                <div id="dynamicLinks" class="space-y-2"></div>
+                
+                <div class="pt-6 pb-2 px-5 text-[10px] font-bold text-flowBrown uppercase tracking-[0.2em]">Mes Budgets</div>
+                <div id="dynamicLinks" class="space-y-1"></div>
             </nav>
 
-            <div class="mt-auto pt-6 space-y-3">
+            <div class="mt-auto shrink-0 space-y-3">
                 <button onclick="openAddCategoryModal()" class="w-full flex items-center justify-center space-x-2 px-4 py-4 btn-gold rounded-lg text-[10px] font-bold uppercase tracking-widest shadow-lg">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     <span>Nouvelle Catégorie</span>
                 </button>
-                <button onclick="navigate('profile')" class="w-full flex items-center space-x-4 px-5 py-3 rounded-lg hover:bg-white flow-transition text-xs font-semibold uppercase tracking-widest text-flowGreen/70 hover:text-flowGreen">
+                <button onclick="navigate('profile')" class="w-full flex items-center space-x-4 px-5 py-3 rounded-lg hover:bg-white transition-all text-xs font-semibold uppercase tracking-widest active-nav-profile">
                     <i data-lucide="user-cog" class="w-4 h-4"></i>
                     <span>Mon Profil</span>
                 </button>
@@ -137,15 +138,16 @@
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="lg:ml-72 min-h-screen pt-24 lg:pt-28 p-6 lg:p-16 flex flex-col">
+    <!-- Main Content Area (Removed top padding related to fixed header) -->
+    <main class="lg:ml-72 min-h-screen pt-10 p-6 lg:p-16 flex flex-col">
         <div id="app-view" class="max-w-5xl mx-auto opacity-0 flow-transition flex-1 w-full">
             <!-- Dynamic Content -->
         </div>
 
         <!-- Footer -->
         <footer class="mt-20 border-t border-flowBorder pt-10 pb-10 flex flex-col items-center space-y-4">
-            <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-12 opacity-80">
+            <!-- Agrandissement majeur du logo en pied de page -->
+            <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-48 w-auto opacity-90 cursor-pointer hover:opacity-100 transition-all" onclick="navigate('dashboard')">
             <div class="text-center">
                 <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-flowBrown">© 2026 FLOW by Rayane</p>
                 <p class="text-[9px] text-flowGreen font-medium mt-1">Élégance & Maîtrise de vos finances personnelles.</p>
@@ -248,15 +250,28 @@
             }
         }
 
+        /**
+         * Navigation logic with scroll-to-top feature
+         */
         function navigate(view) {
             state.currentView = view;
             toggleSidebar(false);
+            
+            // Critical fix: Redirect to top of page on every navigation
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            
             render();
         }
 
         function init() {
-            const savedState = localStorage.getItem('flow_by_rayane_v4');
-            if (savedState) state = JSON.parse(savedState);
+            // Load saved state or default
+            const savedState = localStorage.getItem('flow_by_rayane_v6');
+            if (savedState) {
+                state = JSON.parse(savedState);
+            }
+            
+            // Force dashboard view on initial load/refresh as requested
+            state.currentView = 'dashboard';
 
             document.getElementById('menuToggle').addEventListener('click', () => toggleSidebar(true));
             document.getElementById('closeSidebar').addEventListener('click', () => toggleSidebar(false));
@@ -267,13 +282,14 @@
         }
 
         function saveState() {
-            localStorage.setItem('flow_by_rayane_v4', JSON.stringify(state));
+            localStorage.setItem('flow_by_rayane_v6', JSON.stringify(state));
         }
 
         function render() {
             const container = document.getElementById('app-view');
             container.style.opacity = '0';
             
+            // Clean up old charts
             if (currentChart) {
                 currentChart.destroy();
                 currentChart = null;
@@ -281,6 +297,10 @@
 
             setTimeout(() => {
                 renderSidebarLinks();
+                
+                // Active states for nav buttons
+                updateNavStyles();
+
                 if (state.currentView === 'dashboard') renderDashboard(container);
                 else if (state.currentView === 'profile') renderProfile(container);
                 else renderCategoryDetail(container, state.currentView);
@@ -288,6 +308,31 @@
                 container.style.opacity = '1';
                 lucide.createIcons();
             }, 150);
+        }
+
+        function updateNavStyles() {
+            const dashboardBtn = document.querySelector('.active-nav-dashboard');
+            const profileBtn = document.querySelector('.active-nav-profile');
+            
+            if (dashboardBtn) {
+                if (state.currentView === 'dashboard') {
+                    dashboardBtn.classList.add('bg-white', 'text-flowGold', 'premium-shadow');
+                    dashboardBtn.classList.remove('text-flowGreen');
+                } else {
+                    dashboardBtn.classList.remove('bg-white', 'text-flowGold', 'premium-shadow');
+                    dashboardBtn.classList.add('text-flowGreen');
+                }
+            }
+            
+            if (profileBtn) {
+                if (state.currentView === 'profile') {
+                    profileBtn.classList.add('bg-white', 'text-flowGold', 'premium-shadow');
+                    profileBtn.classList.remove('text-flowGreen/70');
+                } else {
+                    profileBtn.classList.remove('bg-white', 'text-flowGold', 'premium-shadow');
+                    profileBtn.classList.add('text-flowGreen/70');
+                }
+            }
         }
 
         function renderSidebarLinks() {
@@ -315,10 +360,10 @@
                 const stats = calculateStats(cat.id);
                 const dayPerc = Math.min((stats.day / cat.budget.day) * 100, 100);
                 html += `
-                    <div onclick="navigate('${cat.id}')" class="bg-flowCard p-8 rounded-2xl cursor-pointer hover:shadow-2xl flow-transition border border-flowBorder premium-card group">
+                    <div onclick="navigate('${cat.id}')" class="bg-flowCard p-8 rounded-2xl cursor-pointer hover:shadow-2xl transition-all border border-flowBorder premium-card group">
                         <div class="flex items-center justify-between mb-8">
                             <div class="flex items-center space-x-5">
-                                <div class="w-14 h-14 bg-flowBackground rounded-full flex items-center justify-center border border-flowGold/40 group-hover:scale-110 flow-transition">
+                                <div class="w-14 h-14 bg-flowBackground rounded-full flex items-center justify-center border border-flowGold/40 group-hover:scale-110 transition-transform">
                                     <i data-lucide="${cat.icon || 'tag'}" class="w-6 h-6 text-flowGold"></i>
                                 </div>
                                 <div>
@@ -334,7 +379,7 @@
                             <div>
                                 <div class="flex justify-between text-[10px] mb-3 uppercase font-bold text-flowGreen tracking-widest">
                                     <span>${dayPerc.toFixed(0)}% Consommé</span>
-                                    <span class="text-flowBrown">${(cat.budget.day - stats.day).toFixed(0)} MAD Restant</span>
+                                    <span class="text-flowBrown">${Math.max(0, (cat.budget.day - stats.day)).toFixed(0)} MAD Restant</span>
                                 </div>
                                 <div class="progress-bar"><div class="progress-fill bg-flowGold" style="width: ${dayPerc}%"></div></div>
                             </div>
@@ -355,7 +400,7 @@
 
             container.innerHTML = `
                 <div class="mb-16">
-                    <button onclick="navigate('dashboard')" class="text-[10px] font-bold uppercase text-flowGreen flex items-center mb-8 tracking-[0.2em] hover:text-flowGold flow-transition">
+                    <button onclick="navigate('dashboard')" class="text-[10px] font-bold uppercase text-flowGreen flex items-center mb-8 tracking-[0.2em] hover:text-flowGold transition-colors">
                         <i data-lucide="arrow-left" class="w-3 h-3 mr-3"></i> Retour Dashboard
                     </button>
                     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
@@ -364,10 +409,10 @@
                             <p class="text-[10px] text-flowBrown font-bold uppercase tracking-[0.3em]">Gestion du budget de catégorie</p>
                         </div>
                         <div class="flex flex-wrap gap-4">
-                            <button onclick="deleteCategory('${cat.id}')" class="p-4 text-red-400 bg-white rounded-xl border border-flowBorder hover:bg-red-50 flow-transition shadow-sm">
+                            <button onclick="deleteCategory('${cat.id}')" class="p-4 text-red-400 bg-white rounded-xl border border-flowBorder hover:bg-red-50 transition-colors shadow-sm">
                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                             </button>
-                            <button onclick="openEditBudgetsModal()" class="px-8 py-4 border border-flowGold text-flowGold rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white flow-transition">Modifier Objectifs</button>
+                            <button onclick="openEditBudgetsModal()" class="px-8 py-4 border border-flowGold text-flowGold rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Modifier Objectifs</button>
                             <button onclick="openAddExpenseModal()" class="px-8 py-4 btn-gold rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-xl">+ Nouvelle Dépense</button>
                         </div>
                     </div>
@@ -398,7 +443,7 @@
                                     </div>
                                     <div class="flex items-center space-x-4">
                                         <p class="font-serif text-lg text-flowGreen">-${e.amount.toFixed(0)} <span class="text-[10px]">MAD</span></p>
-                                        <button onclick="deleteExpense('${e.id}')" class="text-flowGreen/30 opacity-0 group-hover:opacity-100 hover:text-red-400 flow-transition">
+                                        <button onclick="deleteExpense('${e.id}')" class="text-flowGreen/30 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all">
                                             <i data-lucide="x" class="w-4 h-4"></i>
                                         </button>
                                     </div>
@@ -496,15 +541,15 @@
                     <div class="space-y-10">
                         <div class="space-y-4">
                             <label class="block text-[10px] font-bold uppercase text-flowBrown tracking-widest">Identité de l'utilisateur</label>
-                            <input type="text" id="profileName" value="${state.profile.name}" placeholder="Votre nom" class="w-full py-4 bg-transparent border-b border-flowBorder focus:border-flowGold text-xl font-serif text-flowGreen flow-transition">
+                            <input type="text" id="profileName" value="${state.profile.name || ''}" placeholder="Votre nom" class="w-full py-4 bg-transparent border-b border-flowBorder focus:border-flowGold text-xl font-serif text-flowGreen flow-transition">
                         </div>
                         <div class="space-y-4">
                             <label class="block text-[10px] font-bold uppercase text-flowBrown tracking-widest">Contact WhatsApp</label>
-                            <input type="text" id="profileWA" value="${state.profile.whatsapp}" placeholder="+212..." class="w-full py-4 bg-transparent border-b border-flowBorder focus:border-flowGold text-xl font-serif text-flowGreen flow-transition">
+                            <input type="text" id="profileWA" value="${state.profile.whatsapp || ''}" placeholder="+212..." class="w-full py-4 bg-transparent border-b border-flowBorder focus:border-flowGold text-xl font-serif text-flowGreen flow-transition">
                         </div>
                         <div class="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <button onclick="saveProfile()" class="py-5 btn-gold rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-xl">Enregistrer Profil</button>
-                            <button onclick="sendWhatsAppReport()" class="py-5 border-2 border-green-700 text-green-700 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-green-50 flow-transition">Rapport WhatsApp</button>
+                            <button onclick="sendWhatsAppReport()" class="py-5 border-2 border-green-700 text-green-700 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-green-50 transition-colors">Rapport WhatsApp</button>
                         </div>
                     </div>
                 </div>
@@ -538,12 +583,16 @@
         function openAddCategoryModal() { openModal('addCategoryModal'); }
 
         function createNewCategory() {
-            const name = document.getElementById('newCategoryName').value;
-            const icon = document.getElementById('newCategoryIcon').value || 'tag';
+            const nameInput = document.getElementById('newCategoryName');
+            const iconInput = document.getElementById('newCategoryIcon');
+            const name = nameInput.value;
+            const icon = iconInput.value || 'tag';
             if (!name) return;
             const newCat = { id: 'cat_' + Date.now(), name, icon, budget: { day: 100, week: 700, month: 3000 }};
             state.categories.push(newCat);
             saveState();
+            nameInput.value = '';
+            iconInput.value = '';
             closeModal();
             navigate(newCat.id);
         }
@@ -568,7 +617,8 @@
             const descInput = document.getElementById('expenseDesc');
             const amount = parseFloat(amountInput.value);
             const desc = descInput.value;
-            if (!amount) return;
+            if (isNaN(amount) || amount <= 0) return alert('Veuillez entrer un montant valide.');
+            
             state.expenses.push({ id: 'e' + Date.now(), catId: state.currentView, amount, desc, timestamp: Date.now() });
             saveState();
             amountInput.value = '';
@@ -616,11 +666,12 @@
         }
 
         function sendWhatsAppReport() {
-            if (!state.profile.whatsapp) return alert('Numéro requis !');
+            if (!state.profile.whatsapp) return alert('Veuillez renseigner votre numéro WhatsApp dans le profil.');
             let msg = `*FLOW by Rayane - Rapport Financier*\n\n`;
             state.categories.forEach(c => {
                 const s = calculateStats(c.id);
-                msg += `*${c.name}*: Restant ${ (c.budget.month - s.month).toFixed(0) } MAD / ${c.budget.month} MAD\n`;
+                const remaining = Math.max(0, (c.budget.month - s.month));
+                msg += `*${c.name}*: Restant ${ remaining.toFixed(0) } MAD / ${c.budget.month} MAD\n`;
             });
             msg += `\n_Généré avec Flow_`;
             window.open(`https://wa.me/${state.profile.whatsapp.replace(/\+/g, '').replace(/\s/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
