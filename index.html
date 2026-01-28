@@ -86,10 +86,10 @@
 <body class="font-sans antialiased">
 
     <!-- Mobile Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-flowGreen/40 backdrop-blur-sm z-[40]"></div>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-flowGreen/40 backdrop-blur-sm z-[40] transition-opacity duration-300"></div>
 
     <!-- Menu Toggle Button (Visible when sidebar is hidden) -->
-    <button id="menuToggle" class="fixed top-6 left-6 z-[45] p-3 bg-white/90 backdrop-blur rounded-full shadow-xl text-flowGreen border border-flowBorder active:scale-95 transition-transform">
+    <button id="menuToggle" class="fixed top-6 left-6 z-[45] p-3 bg-white/90 backdrop-blur rounded-full shadow-xl text-flowGreen border border-flowBorder active:scale-95 transition-all duration-300" onclick="toggleSidebar(true)">
         <i data-lucide="menu" class="w-6 h-6"></i>
     </button>
 
@@ -100,12 +100,12 @@
             <!-- Sidebar Header with Logo and Internal Toggle Button -->
             <div class="flex flex-col items-center p-8 shrink-0 relative">
                 <!-- Internal Hide Button (The 3 bars requested) -->
-                <button id="hideSidebar" class="absolute top-6 left-6 p-2 text-flowGreen hover:text-flowGold transition-colors" aria-label="Masquer la barre">
+                <button id="hideSidebar" class="absolute top-6 left-6 p-2 text-flowGreen hover:text-flowGold transition-colors" aria-label="Masquer la barre" onclick="toggleSidebar(false)">
                     <i data-lucide="menu" class="w-6 h-6"></i>
                 </button>
 
-                <!-- Close Button for Mobile (The X) - keep for accessibility/UX -->
-                <button id="closeSidebar" class="absolute top-6 right-6 p-2 text-flowGreen lg:hidden" aria-label="Fermer">
+                <!-- Close Button for Mobile (Alternative way to close) -->
+                <button id="closeSidebarMobile" class="absolute top-6 right-6 p-2 text-flowGreen lg:hidden" aria-label="Fermer" onclick="toggleSidebar(false)">
                     <i data-lucide="x" class="w-7 h-7"></i>
                 </button>
 
@@ -161,10 +161,9 @@
         </footer>
     </main>
 
-    <!-- Modals -->
+    <!-- Modals Overlay -->
     <div id="modalOverlay" class="fixed inset-0 bg-flowGreen/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-        <!-- Modal contents remain unchanged for brevity... -->
-        <!-- New Category -->
+        <!-- New Category Modal -->
         <div id="addCategoryModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
             <h3 class="logo-text text-2xl mb-8 text-flowBrown">Nouveau Budget</h3>
             <div class="space-y-6">
@@ -183,7 +182,7 @@
             </div>
         </div>
 
-        <!-- Add Expense -->
+        <!-- Add Expense Modal -->
         <div id="addExpenseModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
             <h3 class="logo-text text-2xl mb-2 text-flowBrown">Ajouter Dépense</h3>
             <p id="targetCatName" class="text-[10px] font-bold text-flowGreen uppercase tracking-[0.2em] mb-8"></p>
@@ -203,7 +202,7 @@
             </div>
         </div>
 
-        <!-- Edit Budgets -->
+        <!-- Edit Budgets Modal -->
         <div id="editBudgetsModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
             <h3 class="logo-text text-2xl mb-8 text-flowBrown text-center">Objectifs Budget</h3>
             <div class="space-y-6">
@@ -217,7 +216,7 @@
             </div>
         </div>
 
-        <!-- Create Profile -->
+        <!-- Create Profile Modal -->
         <div id="createProfileModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
             <h3 class="logo-text text-2xl mb-8 text-flowBrown">Nouveau Profil</h3>
             <div class="space-y-6">
@@ -298,25 +297,35 @@
             const menuToggle = document.getElementById('menuToggle');
 
             if (open) {
+                // Montrer la barre
                 sidebar.classList.remove('sidebar-closed');
                 sidebar.classList.add('sidebar-open');
+                
                 if (window.innerWidth < 1024) {
                     overlay.classList.add('active');
                 } else {
                     mainContent.classList.remove('main-expanded');
                 }
+                
+                // Cacher le bouton flottant (car on utilise le bouton interne maintenant)
                 menuToggle.style.opacity = '0';
                 menuToggle.style.pointerEvents = 'none';
+                menuToggle.style.transform = 'scale(0.8)';
             } else {
+                // Cacher la barre
                 sidebar.classList.remove('sidebar-open');
                 sidebar.classList.add('sidebar-closed');
-                if (window.innerWidth < 1024) {
-                    overlay.classList.remove('active');
-                } else {
+                
+                overlay.classList.remove('active');
+                
+                if (window.innerWidth >= 1024) {
                     mainContent.classList.add('main-expanded');
                 }
+                
+                // Faire réapparaître le bouton flottant
                 menuToggle.style.opacity = '1';
                 menuToggle.style.pointerEvents = 'auto';
+                menuToggle.style.transform = 'scale(1)';
             }
         }
 
@@ -330,7 +339,7 @@
         }
 
         function init() {
-            const saved = localStorage.getItem('flow_by_rayane_v9_multiprof');
+            const saved = localStorage.getItem('flow_by_rayane_v10_multiprof');
             if (saved) {
                 appState = JSON.parse(saved);
             } else {
@@ -345,10 +354,7 @@
                 appState.activeProfileId = firstProf.id;
             }
 
-            // Event Listeners
-            document.getElementById('menuToggle').addEventListener('click', () => toggleSidebar(true));
-            document.getElementById('hideSidebar').addEventListener('click', () => toggleSidebar(false));
-            document.getElementById('closeSidebar').addEventListener('click', () => toggleSidebar(false));
+            // Click on overlay to close sidebar
             document.getElementById('sidebarOverlay').addEventListener('click', () => toggleSidebar(false));
 
             // Initial Sidebar State (Visible on Desktop)
@@ -362,7 +368,7 @@
         }
 
         function saveAppState() {
-            localStorage.setItem('flow_by_rayane_v9_multiprof', JSON.stringify(appState));
+            localStorage.setItem('flow_by_rayane_v10_multiprof', JSON.stringify(appState));
         }
 
         function render() {
@@ -734,7 +740,7 @@
         }
 
         function deleteCategory(id) {
-            if (confirm('Supprimer cette catégorie et toutes ses d' + 'épenses ?')) {
+            if (confirm('Supprimer cette catégorie et toutes ses dépenses ?')) {
                 const prof = getActiveProfile();
                 prof.categories = prof.categories.filter(c => c.id !== id);
                 prof.expenses = prof.expenses.filter(e => e.catId !== id);
