@@ -43,10 +43,13 @@
         }
         .flow-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        /* Sidebar Mobile Fixes */
+        /* Sidebar Toggle Logic */
         .sidebar-open { transform: translateX(0); }
         .sidebar-closed { transform: translateX(-100%); }
         
+        /* Main Content Adjustments */
+        .main-expanded { margin-left: 0 !important; }
+
         #sidebarOverlay { 
             opacity: 0; 
             pointer-events: none; 
@@ -73,7 +76,7 @@
         
         button:focus { outline: none; }
         
-        /* Ensure sidebar height on mobile */
+        /* Ensure sidebar height */
         #sidebar {
             height: 100vh;
             height: -webkit-fill-available;
@@ -83,20 +86,25 @@
 <body class="font-sans antialiased">
 
     <!-- Mobile Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-flowGreen/40 backdrop-blur-sm lg:hidden"></div>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-flowGreen/40 backdrop-blur-sm z-[40]"></div>
 
-    <!-- Floating Menu Button Mobile -->
-    <button id="menuToggle" class="fixed top-6 left-6 z-[45] p-3 bg-white/90 backdrop-blur rounded-full shadow-xl text-flowGreen lg:hidden border border-flowBorder active:scale-95 transition-transform">
+    <!-- Menu Toggle Button (Visible when sidebar is hidden) -->
+    <button id="menuToggle" class="fixed top-6 left-6 z-[45] p-3 bg-white/90 backdrop-blur rounded-full shadow-xl text-flowGreen border border-flowBorder active:scale-95 transition-transform">
         <i data-lucide="menu" class="w-6 h-6"></i>
     </button>
 
     <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-flowBackground border-r border-flowBorder z-50 transform sidebar-closed lg:translate-x-0 flow-transition flex flex-col shadow-2xl lg:shadow-none">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-80 bg-flowBackground border-r border-flowBorder z-50 transform flow-transition flex flex-col shadow-2xl lg:shadow-none sidebar-open">
         <div class="flex flex-col h-full overflow-hidden">
             
-            <!-- Sidebar Header with Logo -->
+            <!-- Sidebar Header with Logo and Internal Toggle Button -->
             <div class="flex flex-col items-center p-8 shrink-0 relative">
-                <!-- Close Button Mobile -->
+                <!-- Internal Hide Button (The 3 bars requested) -->
+                <button id="hideSidebar" class="absolute top-6 left-6 p-2 text-flowGreen hover:text-flowGold transition-colors" aria-label="Masquer la barre">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+
+                <!-- Close Button for Mobile (The X) - keep for accessibility/UX -->
                 <button id="closeSidebar" class="absolute top-6 right-6 p-2 text-flowGreen lg:hidden" aria-label="Fermer">
                     <i data-lucide="x" class="w-7 h-7"></i>
                 </button>
@@ -138,7 +146,7 @@
     </aside>
 
     <!-- Main Content Area -->
-    <main class="lg:ml-80 min-h-screen pt-20 lg:pt-16 p-6 lg:p-16 flex flex-col">
+    <main id="mainContent" class="lg:ml-80 min-h-screen pt-20 lg:pt-16 p-6 lg:p-16 flex flex-col flow-transition">
         <div id="app-view" class="max-w-5xl mx-auto opacity-0 flow-transition flex-1 w-full">
             <!-- Dynamic Content -->
         </div>
@@ -155,6 +163,7 @@
 
     <!-- Modals -->
     <div id="modalOverlay" class="fixed inset-0 bg-flowGreen/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <!-- Modal contents remain unchanged for brevity... -->
         <!-- New Category -->
         <div id="addCategoryModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
             <h3 class="logo-text text-2xl mb-8 text-flowBrown">Nouveau Budget</h3>
@@ -285,26 +294,43 @@
         function toggleSidebar(open) {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.getElementById('mainContent');
+            const menuToggle = document.getElementById('menuToggle');
+
             if (open) {
                 sidebar.classList.remove('sidebar-closed');
                 sidebar.classList.add('sidebar-open');
-                overlay.classList.add('active');
+                if (window.innerWidth < 1024) {
+                    overlay.classList.add('active');
+                } else {
+                    mainContent.classList.remove('main-expanded');
+                }
+                menuToggle.style.opacity = '0';
+                menuToggle.style.pointerEvents = 'none';
             } else {
-                sidebar.classList.add('sidebar-closed');
                 sidebar.classList.remove('sidebar-open');
-                overlay.classList.remove('active');
+                sidebar.classList.add('sidebar-closed');
+                if (window.innerWidth < 1024) {
+                    overlay.classList.remove('active');
+                } else {
+                    mainContent.classList.add('main-expanded');
+                }
+                menuToggle.style.opacity = '1';
+                menuToggle.style.pointerEvents = 'auto';
             }
         }
 
         function navigate(view) {
             currentView = view;
-            toggleSidebar(false); // Close sidebar on mobile after clicking
+            if (window.innerWidth < 1024) {
+                toggleSidebar(false);
+            }
             window.scrollTo({ top: 0, behavior: 'instant' });
             render();
         }
 
         function init() {
-            const saved = localStorage.getItem('flow_by_rayane_v8_multiprof');
+            const saved = localStorage.getItem('flow_by_rayane_v9_multiprof');
             if (saved) {
                 appState = JSON.parse(saved);
             } else {
@@ -321,14 +347,22 @@
 
             // Event Listeners
             document.getElementById('menuToggle').addEventListener('click', () => toggleSidebar(true));
+            document.getElementById('hideSidebar').addEventListener('click', () => toggleSidebar(false));
             document.getElementById('closeSidebar').addEventListener('click', () => toggleSidebar(false));
             document.getElementById('sidebarOverlay').addEventListener('click', () => toggleSidebar(false));
+
+            // Initial Sidebar State (Visible on Desktop)
+            if (window.innerWidth >= 1024) {
+                toggleSidebar(true);
+            } else {
+                toggleSidebar(false);
+            }
 
             render();
         }
 
         function saveAppState() {
-            localStorage.setItem('flow_by_rayane_v8_multiprof', JSON.stringify(appState));
+            localStorage.setItem('flow_by_rayane_v9_multiprof', JSON.stringify(appState));
         }
 
         function render() {
@@ -700,7 +734,7 @@
         }
 
         function deleteCategory(id) {
-            if (confirm('Supprimer cette catégorie et toutes ses dépenses ?')) {
+            if (confirm('Supprimer cette catégorie et toutes ses d' + 'épenses ?')) {
                 const prof = getActiveProfile();
                 prof.categories = prof.categories.filter(c => c.id !== id);
                 prof.expenses = prof.expenses.filter(e => e.catId !== id);
