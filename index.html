@@ -42,77 +42,42 @@
             scroll-behavior: smooth;
         }
         .flow-transition { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        
-        /* Sidebar states */
         .sidebar-open { transform: translateX(0); }
         .sidebar-closed { transform: translateX(-100%); }
-        
-        /* Overlay mobile */
         #sidebarOverlay.active { opacity: 1; pointer-events: auto; }
         #sidebarOverlay { opacity: 0; pointer-events: none; }
-
         input:focus { outline: none; border-bottom: 2px solid #d6ba90; }
-        
         .progress-bar { height: 4px; border-radius: 2px; overflow: hidden; background: #d6ba9033; }
         .progress-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease-in-out; }
-        
-        /* Premium Shadows */
         .premium-shadow { box-shadow: 0 10px 30px -10px rgba(56, 78, 53, 0.1); }
         .premium-card { border: 1px solid rgba(214, 186, 144, 0.3); }
-        
-        /* Glassmorphism */
         .glass { background: rgba(242, 239, 231, 0.9); backdrop-filter: blur(12px); }
-
-        .btn-gold {
-            background: #d6ba90;
-            color: white;
-            transition: all 0.3s ease;
-        }
-        .btn-gold:hover {
-            background: #384e35;
-            transform: translateY(-2px);
-        }
-
-        .logo-text {
-            font-family: 'Playfair Display', serif;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-
-        /* Custom scrollbar */
+        .btn-gold { background: #d6ba90; color: white; transition: all 0.3s ease; }
+        .btn-gold:hover { background: #384e35; transform: translateY(-2px); }
+        .logo-text { font-family: 'Playfair Display', serif; letter-spacing: 0.1em; text-transform: uppercase; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #d6ba90; border-radius: 10px; }
-
-        /* Ensuring focus state doesn't look bad on mobile buttons */
         button:focus { outline: none; }
     </style>
 </head>
 <body class="font-sans antialiased">
 
-    <!-- Mobile Overlay for Sidebar -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-black/20 z-[45] flow-transition lg:hidden"></div>
 
-    <!-- Floating Menu Button for Mobile (Since top bar is removed) -->
     <button id="menuToggle" class="fixed top-6 left-6 z-[60] p-3 bg-white/80 backdrop-blur rounded-full shadow-lg text-flowGreen lg:hidden border border-flowBorder">
         <i data-lucide="menu" class="w-6 h-6"></i>
     </button>
 
-    <!-- Sidebar -->
     <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-flowBackground border-r border-flowBorder z-50 transform sidebar-closed lg:translate-x-0 flow-transition pt-10 overflow-hidden flex flex-col">
         <div class="flex flex-col h-full p-8 overflow-y-auto">
-            <!-- Branding Sidebar Section (Visible above Dashboard) -->
             <div class="flex flex-col items-center mb-8 shrink-0">
-                <!-- Agrandissement du logo dans la barre de navigation -->
                 <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-64 w-auto mb-4 object-contain cursor-pointer hover:scale-105 transition-transform" onclick="navigate('dashboard')">
                 <div class="text-center">
                     <h2 class="font-serif text-2xl font-bold text-flowGreen leading-tight">Flow By Rayane</h2>
+                    <p id="activeProfileLabel" class="text-[9px] font-bold text-flowBrown uppercase tracking-widest mt-2 opacity-70"></p>
                 </div>
-                
-                <!-- Close Button for Mobile only -->
-                <button id="closeSidebar" class="mt-4 p-2 text-flowGreen lg:hidden" aria-label="Fermer">
-                    <i data-lucide="x" class="w-7 h-7"></i>
-                </button>
+                <button id="closeSidebar" class="mt-4 p-2 text-flowGreen lg:hidden"><i data-lucide="x" class="w-7 h-7"></i></button>
             </div>
 
             <nav class="flex-1 space-y-2 mb-6" id="sidebarNav">
@@ -120,7 +85,6 @@
                     <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
                     <span>Dashboard Général</span>
                 </button>
-                
                 <div class="pt-6 pb-2 px-5 text-[10px] font-bold text-flowBrown uppercase tracking-[0.2em]">Mes Budgets</div>
                 <div id="dynamicLinks" class="space-y-1"></div>
             </nav>
@@ -132,21 +96,15 @@
                 </button>
                 <button onclick="navigate('profile')" class="w-full flex items-center space-x-4 px-5 py-3 rounded-lg hover:bg-white transition-all text-xs font-semibold uppercase tracking-widest active-nav-profile">
                     <i data-lucide="user-cog" class="w-4 h-4"></i>
-                    <span>Mon Profil</span>
+                    <span>Profil & WhatsApp</span>
                 </button>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content Area (Removed top padding related to fixed header) -->
     <main class="lg:ml-72 min-h-screen pt-10 p-6 lg:p-16 flex flex-col">
-        <div id="app-view" class="max-w-5xl mx-auto opacity-0 flow-transition flex-1 w-full">
-            <!-- Dynamic Content -->
-        </div>
-
-        <!-- Footer -->
+        <div id="app-view" class="max-w-5xl mx-auto opacity-0 flow-transition flex-1 w-full"></div>
         <footer class="mt-20 border-t border-flowBorder pt-10 pb-10 flex flex-col items-center space-y-4">
-            <!-- Agrandissement majeur du logo en pied de page -->
             <img src="https://i.postimg.cc/Xqw7ggx2/unnamed-(33)-Photoroom.png" alt="FLOW Logo" class="h-48 w-auto opacity-90 cursor-pointer hover:opacity-100 transition-all" onclick="navigate('dashboard')">
             <div class="text-center">
                 <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-flowBrown">© 2026 FLOW by Rayane</p>
@@ -155,20 +113,14 @@
         </footer>
     </main>
 
-    <!-- Modals Overlay -->
+    <!-- Modals -->
     <div id="modalOverlay" class="fixed inset-0 bg-flowGreen/60 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
-        <!-- Add Category Modal -->
+        <!-- New Category -->
         <div id="addCategoryModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
             <h3 class="logo-text text-2xl mb-8 text-flowBrown">Nouvelle Catégorie</h3>
             <div class="space-y-6">
-                <div>
-                    <label class="block text-[10px] font-bold text-flowGreen uppercase tracking-widest mb-2">Nom du budget</label>
-                    <input type="text" id="newCategoryName" placeholder="Ex: Sorties, Shopping..." class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold flow-transition text-flowGreen">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-flowGreen uppercase tracking-widest mb-2">Icône (Lucide name)</label>
-                    <input type="text" id="newCategoryIcon" placeholder="Ex: coffee, shopping-bag..." class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold flow-transition text-flowGreen">
-                </div>
+                <input type="text" id="newCategoryName" placeholder="Nom du budget" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-flowGreen">
+                <input type="text" id="newCategoryIcon" placeholder="Icône Lucide (ex: coffee)" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-flowGreen">
                 <div class="flex space-x-4 pt-6">
                     <button onclick="closeModal()" class="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest text-flowGreen">Annuler</button>
                     <button onclick="createNewCategory()" class="flex-1 py-4 btn-gold rounded-lg text-[10px] font-bold uppercase tracking-widest">Créer</button>
@@ -176,19 +128,13 @@
             </div>
         </div>
 
-        <!-- Add Expense Modal -->
+        <!-- Add Expense -->
         <div id="addExpenseModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
             <h3 class="logo-text text-2xl mb-2 text-flowBrown">Ajouter Dépense</h3>
             <p id="targetCatName" class="text-[10px] font-bold text-flowGreen uppercase tracking-[0.2em] mb-8"></p>
             <div class="space-y-6">
-                <div>
-                    <label class="block text-[10px] font-bold text-flowGreen uppercase tracking-widest mb-2">Description</label>
-                    <input type="text" id="expenseDesc" placeholder="Ex: Déjeuner, Essence..." class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold flow-transition text-flowGreen">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-flowGreen uppercase tracking-widest mb-2">Montant (MAD)</label>
-                    <input type="number" id="expenseAmount" placeholder="0.00" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold flow-transition text-xl font-serif text-flowGreen">
-                </div>
+                <input type="text" id="expenseDesc" placeholder="Description" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-flowGreen">
+                <input type="number" id="expenseAmount" placeholder="Montant (MAD)" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-xl font-serif text-flowGreen">
                 <div class="flex space-x-4 pt-6">
                     <button onclick="closeModal()" class="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest text-flowGreen">Annuler</button>
                     <button onclick="saveExpense()" class="flex-1 py-4 btn-gold rounded-lg text-[10px] font-bold uppercase tracking-widest">Ajouter</button>
@@ -196,149 +142,164 @@
             </div>
         </div>
 
-        <!-- Edit Budgets Modal -->
+        <!-- Edit Budgets -->
         <div id="editBudgetsModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
             <h3 class="logo-text text-2xl mb-8 text-flowBrown text-center">Objectifs Budget</h3>
             <div class="space-y-6">
-                <div>
-                    <label class="block text-[10px] font-bold text-flowGreen uppercase tracking-widest mb-1">Journalier (MAD)</label>
-                    <input type="number" id="budgetDay" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold flow-transition text-lg font-serif text-flowGreen">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-flowGreen uppercase tracking-widest mb-1">Hebdo (MAD)</label>
-                    <input type="number" id="budgetWeek" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold flow-transition text-lg font-serif text-flowGreen">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-flowGreen uppercase tracking-widest mb-1">Mensuel (MAD)</label>
-                    <input type="number" id="budgetMonth" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold flow-transition text-lg font-serif text-flowGreen">
-                </div>
+                <input type="number" id="budgetDay" placeholder="Journalier" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-lg font-serif text-flowGreen">
+                <input type="number" id="budgetWeek" placeholder="Hebdo" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-lg font-serif text-flowGreen">
+                <input type="number" id="budgetMonth" placeholder="Mensuel" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-lg font-serif text-flowGreen">
                 <div class="flex space-x-4 pt-6">
                     <button onclick="closeModal()" class="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest text-flowGreen">Annuler</button>
                     <button onclick="saveBudgets()" class="flex-1 py-4 btn-gold rounded-lg text-[10px] font-bold uppercase tracking-widest">Enregistrer</button>
                 </div>
             </div>
         </div>
+
+        <!-- Create Profile -->
+        <div id="createProfileModal" class="bg-flowBackground w-full max-w-md rounded-2xl p-10 shadow-2xl hidden transform flow-transition premium-card">
+            <h3 class="logo-text text-2xl mb-8 text-flowBrown">Nouveau Profil</h3>
+            <div class="space-y-6">
+                <input type="text" id="newProfName" placeholder="Nom d'utilisateur" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-flowGreen">
+                <input type="text" id="newProfWA" placeholder="Numéro WhatsApp (+212...)" class="w-full px-0 py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-flowGreen">
+                <div class="flex space-x-4 pt-6">
+                    <button onclick="closeModal()" class="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest text-flowGreen">Annuler</button>
+                    <button onclick="createNewProfile()" class="flex-1 py-4 btn-gold rounded-lg text-[10px] font-bold uppercase tracking-widest">Créer</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- DATA STATE ---
-        let state = {
-            profile: { name: '', whatsapp: '' },
-            currentView: 'dashboard',
-            categories: [
-                { id: 'cat_1', name: 'Courses', icon: 'shopping-cart', budget: { day: 100, week: 700, month: 3000 } },
-                { id: 'cat_2', name: 'Transport', icon: 'car', budget: { day: 50, week: 350, month: 1500 } },
-                { id: 'cat_3', name: 'Sorties', icon: 'glass-water', budget: { day: 200, week: 1400, month: 6000 } }
-            ],
-            expenses: []
+        // --- MULTI-PROFILE DATA STRUCTURE ---
+        let appState = {
+            activeProfileId: null,
+            profiles: [] // Each item: {id, name, whatsapp, categories, expenses}
         };
 
+        const DEFAULT_CATEGORIES = [
+            { id: 'cat_1', name: 'Courses', icon: 'shopping-cart', budget: { day: 100, week: 700, month: 3000 } },
+            { id: 'cat_2', name: 'Transport', icon: 'car', budget: { day: 50, week: 350, month: 1500 } },
+            { id: 'cat_3', name: 'Sorties', icon: 'glass-water', budget: { day: 200, week: 1400, month: 6000 } }
+        ];
+
+        let currentView = 'dashboard';
         let currentChart = null;
 
-        // --- UI CORE ---
+        // --- PROFILE LOGIC ---
+        function getActiveProfile() {
+            return appState.profiles.find(p => p.id === appState.activeProfileId);
+        }
+
+        function createNewProfile() {
+            const name = document.getElementById('newProfName').value;
+            const wa = document.getElementById('newProfWA').value;
+            if (!name || !wa) return alert('Veuillez remplir tous les champs.');
+            
+            const newProf = {
+                id: 'prof_' + Date.now(),
+                name: name,
+                whatsapp: wa,
+                categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
+                expenses: []
+            };
+            
+            appState.profiles.push(newProf);
+            appState.activeProfileId = newProf.id;
+            saveAppState();
+            closeModal();
+            render();
+        }
+
+        function switchProfile(id) {
+            appState.activeProfileId = id;
+            saveAppState();
+            render();
+        }
+
+        function deleteProfile(id) {
+            if (appState.profiles.length <= 1) return alert('Il doit y avoir au moins un profil.');
+            if (confirm('Supprimer ce profil et TOUTES ses données ?')) {
+                appState.profiles = appState.profiles.filter(p => p.id !== id);
+                if (appState.activeProfileId === id) {
+                    appState.activeProfileId = appState.profiles[0].id;
+                }
+                saveAppState();
+                render();
+            }
+        }
+
+        // --- CORE UI ---
+        function navigate(view) {
+            currentView = view;
+            toggleSidebar(false);
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            render();
+        }
+
         function toggleSidebar(open) {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
             if (open) {
-                sidebar.classList.remove('sidebar-closed');
-                sidebar.classList.add('sidebar-open');
-                overlay.classList.add('active');
+                sidebar.classList.remove('sidebar-closed'); sidebar.classList.add('sidebar-open'); overlay.classList.add('active');
             } else {
-                sidebar.classList.add('sidebar-closed');
-                sidebar.classList.remove('sidebar-open');
-                overlay.classList.remove('active');
+                sidebar.classList.add('sidebar-closed'); sidebar.classList.remove('sidebar-open'); overlay.classList.remove('active');
             }
-        }
-
-        /**
-         * Navigation logic with scroll-to-top feature
-         */
-        function navigate(view) {
-            state.currentView = view;
-            toggleSidebar(false);
-            
-            // Critical fix: Redirect to top of page on every navigation
-            window.scrollTo({ top: 0, behavior: 'instant' });
-            
-            render();
         }
 
         function init() {
-            // Load saved state or default
-            const savedState = localStorage.getItem('flow_by_rayane_v6');
-            if (savedState) {
-                state = JSON.parse(savedState);
+            const saved = localStorage.getItem('flow_by_rayane_v7_multiprof');
+            if (saved) {
+                appState = JSON.parse(saved);
+            } else {
+                // Initial Default Profile
+                const firstProf = {
+                    id: 'prof_default',
+                    name: 'Rayane',
+                    whatsapp: '+212600000000',
+                    categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),
+                    expenses: []
+                };
+                appState.profiles.push(firstProf);
+                appState.activeProfileId = firstProf.id;
             }
-            
-            // Force dashboard view on initial load/refresh as requested
-            state.currentView = 'dashboard';
 
             document.getElementById('menuToggle').addEventListener('click', () => toggleSidebar(true));
             document.getElementById('closeSidebar').addEventListener('click', () => toggleSidebar(false));
             document.getElementById('sidebarOverlay').addEventListener('click', () => toggleSidebar(false));
 
             render();
-            lucide.createIcons();
         }
 
-        function saveState() {
-            localStorage.setItem('flow_by_rayane_v6', JSON.stringify(state));
+        function saveAppState() {
+            localStorage.setItem('flow_by_rayane_v7_multiprof', JSON.stringify(appState));
         }
 
         function render() {
             const container = document.getElementById('app-view');
             container.style.opacity = '0';
-            
-            // Clean up old charts
-            if (currentChart) {
-                currentChart.destroy();
-                currentChart = null;
-            }
+            const prof = getActiveProfile();
+            document.getElementById('activeProfileLabel').innerText = `Profil Actif: ${prof.name}`;
+
+            if (currentChart) { currentChart.destroy(); currentChart = null; }
 
             setTimeout(() => {
-                renderSidebarLinks();
-                
-                // Active states for nav buttons
+                renderSidebarLinks(prof);
                 updateNavStyles();
 
-                if (state.currentView === 'dashboard') renderDashboard(container);
-                else if (state.currentView === 'profile') renderProfile(container);
-                else renderCategoryDetail(container, state.currentView);
+                if (currentView === 'dashboard') renderDashboard(container, prof);
+                else if (currentView === 'profile') renderProfile(container, prof);
+                else renderCategoryDetail(container, prof, currentView);
                 
                 container.style.opacity = '1';
                 lucide.createIcons();
             }, 150);
         }
 
-        function updateNavStyles() {
-            const dashboardBtn = document.querySelector('.active-nav-dashboard');
-            const profileBtn = document.querySelector('.active-nav-profile');
-            
-            if (dashboardBtn) {
-                if (state.currentView === 'dashboard') {
-                    dashboardBtn.classList.add('bg-white', 'text-flowGold', 'premium-shadow');
-                    dashboardBtn.classList.remove('text-flowGreen');
-                } else {
-                    dashboardBtn.classList.remove('bg-white', 'text-flowGold', 'premium-shadow');
-                    dashboardBtn.classList.add('text-flowGreen');
-                }
-            }
-            
-            if (profileBtn) {
-                if (state.currentView === 'profile') {
-                    profileBtn.classList.add('bg-white', 'text-flowGold', 'premium-shadow');
-                    profileBtn.classList.remove('text-flowGreen/70');
-                } else {
-                    profileBtn.classList.remove('bg-white', 'text-flowGold', 'premium-shadow');
-                    profileBtn.classList.add('text-flowGreen/70');
-                }
-            }
-        }
-
-        function renderSidebarLinks() {
+        function renderSidebarLinks(prof) {
             const linksContainer = document.getElementById('dynamicLinks');
-            linksContainer.innerHTML = state.categories.map(cat => `
-                <button onclick="navigate('${cat.id}')" class="w-full flex items-center justify-between px-5 py-3 rounded-lg ${state.currentView === cat.id ? 'bg-white text-flowGold premium-shadow' : 'text-flowGreen/70 hover:bg-white hover:text-flowGreen'} flow-transition text-xs font-semibold uppercase tracking-widest">
+            linksContainer.innerHTML = prof.categories.map(cat => `
+                <button onclick="navigate('${cat.id}')" class="w-full flex items-center justify-between px-5 py-3 rounded-lg ${currentView === cat.id ? 'bg-white text-flowGold premium-shadow' : 'text-flowGreen/70 hover:bg-white hover:text-flowGreen'} transition-all text-xs font-semibold uppercase tracking-widest">
                     <div class="flex items-center space-x-4">
                         <i data-lucide="${cat.icon || 'tag'}" class="w-4 h-4"></i>
                         <span>${cat.name}</span>
@@ -347,17 +308,30 @@
             `).join('');
         }
 
-        // --- DASHBOARD VIEW ---
-        function renderDashboard(container) {
+        function updateNavStyles() {
+            const dash = document.querySelector('.active-nav-dashboard');
+            const prof = document.querySelector('.active-nav-profile');
+            if (dash) {
+                if (currentView === 'dashboard') dash.classList.add('bg-white', 'text-flowGold', 'premium-shadow');
+                else dash.classList.remove('bg-white', 'text-flowGold', 'premium-shadow');
+            }
+            if (prof) {
+                if (currentView === 'profile') prof.classList.add('bg-white', 'text-flowGold', 'premium-shadow');
+                else prof.classList.remove('bg-white', 'text-flowGold', 'premium-shadow');
+            }
+        }
+
+        // --- VIEWS ---
+        function renderDashboard(container, prof) {
             let html = `
                 <div class="mb-16">
-                    <h1 class="font-serif text-5xl lg:text-6xl mb-4 leading-tight text-flowGreen">Bonjour, <span class="text-flowBrown">${state.profile.name || 'Rayane'}</span></h1>
-                    <p class="text-flowBrown text-sm tracking-[0.1em] uppercase">Votre flux financier est sous contrôle.</p>
+                    <h1 class="font-serif text-5xl lg:text-6xl mb-4 leading-tight text-flowGreen">Bonjour, <span class="text-flowBrown">${prof.name}</span></h1>
+                    <p class="text-flowBrown text-sm tracking-[0.1em] uppercase">Votre flux financier est isolé et maîtrisé.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             `;
-            state.categories.forEach(cat => {
-                const stats = calculateStats(cat.id);
+            prof.categories.forEach(cat => {
+                const stats = calculateStats(prof, cat.id);
                 const dayPerc = Math.min((stats.day / cat.budget.day) * 100, 100);
                 html += `
                     <div onclick="navigate('${cat.id}')" class="bg-flowCard p-8 rounded-2xl cursor-pointer hover:shadow-2xl transition-all border border-flowBorder premium-card group">
@@ -366,23 +340,16 @@
                                 <div class="w-14 h-14 bg-flowBackground rounded-full flex items-center justify-center border border-flowGold/40 group-hover:scale-110 transition-transform">
                                     <i data-lucide="${cat.icon || 'tag'}" class="w-6 h-6 text-flowGold"></i>
                                 </div>
-                                <div>
-                                    <h3 class="font-serif text-2xl text-flowGreen">${cat.name}</h3>
-                                    <p class="text-[10px] text-flowBrown font-bold uppercase tracking-widest">Dépenses Jour</p>
-                                </div>
+                                <h3 class="font-serif text-2xl text-flowGreen">${cat.name}</h3>
                             </div>
-                            <div class="text-right">
-                                <p class="text-xl font-serif text-flowBrown">${stats.day.toFixed(0)} <span class="text-[10px] text-flowGreen uppercase tracking-tighter">MAD</span></p>
-                            </div>
+                            <p class="text-xl font-serif text-flowBrown">${stats.day.toFixed(0)} <span class="text-[10px]">MAD</span></p>
                         </div>
-                        <div class="space-y-6">
-                            <div>
-                                <div class="flex justify-between text-[10px] mb-3 uppercase font-bold text-flowGreen tracking-widest">
-                                    <span>${dayPerc.toFixed(0)}% Consommé</span>
-                                    <span class="text-flowBrown">${Math.max(0, (cat.budget.day - stats.day)).toFixed(0)} MAD Restant</span>
-                                </div>
-                                <div class="progress-bar"><div class="progress-fill bg-flowGold" style="width: ${dayPerc}%"></div></div>
+                        <div>
+                            <div class="flex justify-between text-[10px] mb-3 uppercase font-bold text-flowGreen tracking-widest">
+                                <span>${dayPerc.toFixed(0)}%</span>
+                                <span class="text-flowBrown">${Math.max(0, cat.budget.day - stats.day).toFixed(0)} Restant</span>
                             </div>
+                            <div class="progress-bar"><div class="progress-fill bg-flowGold" style="width: ${dayPerc}%"></div></div>
                         </div>
                     </div>
                 `;
@@ -391,49 +358,104 @@
             container.innerHTML = html;
         }
 
-        // --- DETAIL VIEW ---
-        function renderCategoryDetail(container, catId) {
-            const cat = state.categories.find(c => c.id === catId);
+        function renderProfile(container, prof) {
+            container.innerHTML = `
+                <h1 class="font-serif text-5xl mb-12 text-flowGreen">Profil & WhatsApp</h1>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <!-- Current Profile Details -->
+                    <div class="bg-white rounded-2xl p-10 border border-flowBorder premium-shadow premium-card">
+                        <h3 class="font-serif text-2xl mb-8 text-flowBrown">Profil Actif</h3>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-flowBrown tracking-widest mb-1">Nom</label>
+                                <input type="text" id="editName" value="${prof.name}" class="w-full py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-lg font-serif text-flowGreen">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-flowBrown tracking-widest mb-1">WhatsApp</label>
+                                <input type="text" id="editWA" value="${prof.whatsapp}" placeholder="+212..." class="w-full py-3 bg-transparent border-b border-flowBorder focus:border-flowGold text-lg font-serif text-flowGreen">
+                            </div>
+                            <button onclick="updateActiveProfile()" class="w-full py-4 btn-gold rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-lg">Mettre à jour</button>
+                        </div>
+
+                        <hr class="my-10 border-flowBorder">
+
+                        <h3 class="font-serif text-2xl mb-6 text-flowBrown">Rapport WhatsApp</h3>
+                        <p class="text-[10px] text-flowGreen font-bold uppercase mb-6 opacity-60">Envoyer les données au numéro enregistré</p>
+                        <div class="grid grid-cols-1 gap-3">
+                            <button onclick="sendWhatsAppReport('day')" class="py-4 border border-green-700 text-green-700 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-green-50 transition-all">Rapport du Jour</button>
+                            <button onclick="sendWhatsAppReport('week')" class="py-4 border border-green-700 text-green-700 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-green-50 transition-all">Rapport de la Semaine</button>
+                            <button onclick="sendWhatsAppReport('month')" class="py-4 border border-green-700 text-green-700 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-green-50 transition-all">Rapport du Mois</button>
+                        </div>
+                    </div>
+
+                    <!-- Profile Management -->
+                    <div class="bg-white rounded-2xl p-10 border border-flowBorder premium-shadow premium-card">
+                        <div class="flex justify-between items-center mb-8">
+                            <h3 class="font-serif text-2xl text-flowBrown">Tous les Profils</h3>
+                            <button onclick="openModal('createProfileModal')" class="p-2 text-flowGold hover:text-flowGreen transition-colors"><i data-lucide="plus-circle" class="w-6 h-6"></i></button>
+                        </div>
+                        <div class="space-y-4">
+                            ${appState.profiles.map(p => `
+                                <div class="flex items-center justify-between p-4 rounded-xl border ${p.id === prof.id ? 'border-flowGold bg-flowBackground' : 'border-flowBorder'} group transition-all">
+                                    <div class="flex items-center space-x-4 cursor-pointer" onclick="switchProfile('${p.id}')">
+                                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center font-serif text-flowGold border border-flowBorder">
+                                            ${p.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-xs text-flowGreen">${p.name}</p>
+                                            <p class="text-[9px] text-flowBrown uppercase">${p.whatsapp}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        ${p.id !== prof.id ? `<button onclick="switchProfile('${p.id}')" class="text-[9px] font-bold uppercase text-flowGold p-2">Sélect.</button>` : ''}
+                                        <button onclick="deleteProfile('${p.id}')" class="text-red-400 p-2 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderCategoryDetail(container, prof, catId) {
+            const cat = prof.categories.find(c => c.id === catId);
             if (!cat) { navigate('dashboard'); return; }
-            const stats = calculateStats(catId);
-            const history = state.expenses.filter(e => e.catId === catId).sort((a,b) => b.timestamp - a.timestamp);
+            const stats = calculateStats(prof, catId);
+            const history = prof.expenses.filter(e => e.catId === catId).sort((a,b) => b.timestamp - a.timestamp);
 
             container.innerHTML = `
                 <div class="mb-16">
                     <button onclick="navigate('dashboard')" class="text-[10px] font-bold uppercase text-flowGreen flex items-center mb-8 tracking-[0.2em] hover:text-flowGold transition-colors">
-                        <i data-lucide="arrow-left" class="w-3 h-3 mr-3"></i> Retour Dashboard
+                        <i data-lucide="arrow-left" class="w-3 h-3 mr-3"></i> Dashboard
                     </button>
                     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
                         <div>
-                            <h1 class="font-serif text-6xl mb-4 text-flowGreen">${cat.name}</h1>
-                            <p class="text-[10px] text-flowBrown font-bold uppercase tracking-[0.3em]">Gestion du budget de catégorie</p>
+                            <h1 class="font-serif text-6xl mb-2 text-flowGreen">${cat.name}</h1>
+                            <p class="text-[10px] text-flowBrown font-bold uppercase tracking-[0.3em]">Profil: ${prof.name}</p>
                         </div>
                         <div class="flex flex-wrap gap-4">
-                            <button onclick="deleteCategory('${cat.id}')" class="p-4 text-red-400 bg-white rounded-xl border border-flowBorder hover:bg-red-50 transition-colors shadow-sm">
-                                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                            </button>
-                            <button onclick="openEditBudgetsModal()" class="px-8 py-4 border border-flowGold text-flowGold rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Modifier Objectifs</button>
-                            <button onclick="openAddExpenseModal()" class="px-8 py-4 btn-gold rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-xl">+ Nouvelle Dépense</button>
+                            <button onclick="deleteCategory('${cat.id}')" class="p-4 text-red-400 bg-white rounded-xl border border-flowBorder hover:bg-red-50 transition-colors shadow-sm"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                            <button onclick="openEditBudgetsModal()" class="px-8 py-4 border border-flowGold text-flowGold rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all">Objectifs</button>
+                            <button onclick="openAddExpenseModal()" class="px-8 py-4 btn-gold rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-xl">+ Dépense</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                    ${renderStatCard('Budget Jour', stats.day, cat.budget.day)}
-                    ${renderStatCard('Budget Hebdo', stats.week, cat.budget.week)}
-                    ${renderStatCard('Budget Mensuel', stats.month, cat.budget.month)}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    ${renderStatCard('Jour', stats.day, cat.budget.day)}
+                    ${renderStatCard('Semaine', stats.week, cat.budget.week)}
+                    ${renderStatCard('Mois', stats.month, cat.budget.month)}
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 bg-white rounded-2xl p-10 border border-flowBorder premium-shadow premium-card">
-                        <h3 class="font-serif text-2xl mb-10 text-flowBrown text-center lg:text-left">Analyse des Tendances</h3>
-                        <div class="h-80 relative">
-                            <canvas id="spendingChart"></canvas>
-                        </div>
+                         <h3 class="font-serif text-2xl mb-10 text-flowBrown">Tendances Hebdo</h3>
+                         <div class="h-80 relative"><canvas id="spendingChart"></canvas></div>
                     </div>
-
                     <div class="bg-white rounded-2xl p-10 border border-flowBorder premium-shadow premium-card">
-                        <h3 class="font-serif text-2xl mb-10 text-flowBrown">Historique</h3>
+                        <h3 class="font-serif text-2xl mb-8 text-flowBrown">Historique</h3>
                         <div class="space-y-6 max-h-[500px] overflow-y-auto pr-2">
                             ${history.length > 0 ? history.map(e => `
                                 <div class="flex justify-between items-center py-4 border-b border-flowBackground last:border-0 group">
@@ -442,127 +464,36 @@
                                         <p class="text-[9px] text-flowBrown uppercase font-bold tracking-widest">${new Date(e.timestamp).toLocaleDateString()}</p>
                                     </div>
                                     <div class="flex items-center space-x-4">
-                                        <p class="font-serif text-lg text-flowGreen">-${e.amount.toFixed(0)} <span class="text-[10px]">MAD</span></p>
-                                        <button onclick="deleteExpense('${e.id}')" class="text-flowGreen/30 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all">
-                                            <i data-lucide="x" class="w-4 h-4"></i>
-                                        </button>
+                                        <p class="font-serif text-lg text-flowGreen">-${e.amount.toFixed(0)} MAD</p>
+                                        <button onclick="deleteExpense('${e.id}')" class="text-flowGreen/30 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all"><i data-lucide="x" class="w-4 h-4"></i></button>
                                     </div>
                                 </div>
-                            `).join('') : '<div class="text-center py-10"><i data-lucide="info" class="w-8 h-8 mx-auto mb-4 text-flowGold/30"></i><p class="text-[10px] text-flowBrown uppercase font-bold">Aucune dépense enregistrée</p></div>'}
+                            `).join('') : '<p class="text-[10px] text-flowBrown uppercase font-bold text-center">Vide</p>'}
                         </div>
                     </div>
                 </div>
             `;
-
-            setTimeout(() => initSpendingChart(catId), 50);
+            setTimeout(() => initSpendingChart(prof, catId), 50);
         }
 
-        function renderStatCard(label, cur, limit) {
-            const p = Math.min((cur / limit) * 100, 100);
-            const remaining = Math.max(limit - cur, 0);
+        function renderStatCard(l, c, lim) {
+            const p = Math.min((c / lim) * 100, 100);
             return `
-                <div class="bg-white p-8 rounded-2xl border border-flowBorder premium-shadow premium-card">
-                    <p class="text-[10px] font-bold text-flowBrown uppercase tracking-[0.2em] mb-6">${label}</p>
-                    <div class="flex items-baseline justify-between mb-4">
-                        <p class="text-3xl font-serif text-flowGreen">${cur.toFixed(0)} <span class="text-xs text-flowBrown uppercase tracking-tighter">MAD</span></p>
-                        <p class="text-[10px] font-bold text-flowGold">${remaining.toFixed(0)} Restant</p>
-                    </div>
+                <div class="bg-white p-8 rounded-2xl border border-flowBorder premium-card shadow-sm">
+                    <p class="text-[10px] font-bold text-flowBrown uppercase tracking-[0.2em] mb-4">${l}</p>
+                    <p class="text-3xl font-serif text-flowGreen mb-2">${c.toFixed(0)} <span class="text-xs text-flowBrown">MAD</span></p>
                     <div class="progress-bar"><div class="progress-fill bg-flowGold" style="width: ${p}%"></div></div>
                 </div>
             `;
         }
 
-        function initSpendingChart(catId) {
-            const canvas = document.getElementById('spendingChart');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const now = new Date();
-            const labels = [];
-            const data = [];
-            
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-                const dayStart = date.getTime();
-                const dayEnd = dayStart + 86400000;
-                labels.push(date.toLocaleDateString('fr-FR', { weekday: 'short' }).toUpperCase());
-                const dayTotal = state.expenses
-                    .filter(e => e.catId === catId && e.timestamp >= dayStart && e.timestamp < dayEnd)
-                    .reduce((sum, e) => sum + e.amount, 0);
-                data.push(dayTotal);
-            }
-
-            currentChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Dépenses',
-                        data: data,
-                        backgroundColor: '#d6ba90',
-                        hoverBackgroundColor: '#384e35',
-                        borderRadius: 4,
-                        barThickness: 16
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#384e35',
-                            titleFont: { family: 'Montserrat', size: 10, weight: 'bold' },
-                            bodyFont: { family: 'Playfair Display', size: 14 },
-                            padding: 15,
-                            cornerRadius: 10,
-                            displayColors: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: '#d6ba9022', drawBorder: false },
-                            ticks: { font: { family: 'Montserrat', size: 9 }, color: '#9b6334' }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { font: { family: 'Montserrat', size: 9, weight: 'bold' }, color: '#384e35' }
-                        }
-                    }
-                }
-            });
-        }
-
-        // --- PROFILE VIEW ---
-        function renderProfile(container) {
-            container.innerHTML = `
-                <h1 class="font-serif text-5xl mb-16 text-flowGreen">Mon Profil</h1>
-                <div class="bg-white rounded-2xl p-12 border border-flowBorder premium-shadow premium-card max-w-xl">
-                    <div class="space-y-10">
-                        <div class="space-y-4">
-                            <label class="block text-[10px] font-bold uppercase text-flowBrown tracking-widest">Identité de l'utilisateur</label>
-                            <input type="text" id="profileName" value="${state.profile.name || ''}" placeholder="Votre nom" class="w-full py-4 bg-transparent border-b border-flowBorder focus:border-flowGold text-xl font-serif text-flowGreen flow-transition">
-                        </div>
-                        <div class="space-y-4">
-                            <label class="block text-[10px] font-bold uppercase text-flowBrown tracking-widest">Contact WhatsApp</label>
-                            <input type="text" id="profileWA" value="${state.profile.whatsapp || ''}" placeholder="+212..." class="w-full py-4 bg-transparent border-b border-flowBorder focus:border-flowGold text-xl font-serif text-flowGreen flow-transition">
-                        </div>
-                        <div class="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button onclick="saveProfile()" class="py-5 btn-gold rounded-xl font-bold uppercase text-[10px] tracking-widest shadow-xl">Enregistrer Profil</button>
-                            <button onclick="sendWhatsAppReport()" class="py-5 border-2 border-green-700 text-green-700 rounded-xl font-bold uppercase text-[10px] tracking-widest hover:bg-green-50 transition-colors">Rapport WhatsApp</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        // --- LOGIC ---
-        function calculateStats(catId) {
+        // --- LOGIC HELPERS ---
+        function calculateStats(prof, catId) {
             const now = new Date();
             const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
             const startWeek = startDay - (now.getDay() * 86400000);
             const startMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            const catEx = state.expenses.filter(e => e.catId === catId);
+            const catEx = prof.expenses.filter(e => e.catId === catId);
             return {
                 day: catEx.filter(e => e.timestamp >= startDay).reduce((s, e) => s + e.amount, 0),
                 week: catEx.filter(e => e.timestamp >= startWeek).reduce((s, e) => s + e.amount, 0),
@@ -570,111 +501,131 @@
             };
         }
 
-        function openModal(id) {
-            document.getElementById('modalOverlay').classList.remove('hidden');
-            document.getElementById(id).classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.add('hidden');
-            document.querySelectorAll('#modalOverlay > div').forEach(d => d.classList.add('hidden'));
-        }
-
-        function openAddCategoryModal() { openModal('addCategoryModal'); }
-
-        function createNewCategory() {
-            const nameInput = document.getElementById('newCategoryName');
-            const iconInput = document.getElementById('newCategoryIcon');
-            const name = nameInput.value;
-            const icon = iconInput.value || 'tag';
-            if (!name) return;
-            const newCat = { id: 'cat_' + Date.now(), name, icon, budget: { day: 100, week: 700, month: 3000 }};
-            state.categories.push(newCat);
-            saveState();
-            nameInput.value = '';
-            iconInput.value = '';
-            closeModal();
-            navigate(newCat.id);
-        }
-
-        function deleteCategory(catId) {
-            if (confirm('Supprimer définitivement cette catégorie et ses dépenses ?')) {
-                state.categories = state.categories.filter(c => c.id !== catId);
-                state.expenses = state.expenses.filter(e => e.catId !== catId);
-                saveState();
-                navigate('dashboard');
+        function initSpendingChart(prof, catId) {
+            const canvas = document.getElementById('spendingChart'); if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const now = new Date(); const labels = []; const data = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+                const dayStart = date.getTime(); const dayEnd = dayStart + 86400000;
+                labels.push(date.toLocaleDateString('fr-FR', { weekday: 'short' }).toUpperCase());
+                data.push(prof.expenses.filter(e => e.catId === catId && e.timestamp >= dayStart && e.timestamp < dayEnd).reduce((sum, e) => sum + e.amount, 0));
             }
+            currentChart = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: [{ data: data, backgroundColor: '#d6ba90', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
         }
 
-        function openAddExpenseModal() {
-            const cat = state.categories.find(c => c.id === state.currentView);
-            document.getElementById('targetCatName').innerText = cat ? cat.name : "Général";
-            openModal('addExpenseModal');
-        }
-
-        function saveExpense() {
-            const amountInput = document.getElementById('expenseAmount');
-            const descInput = document.getElementById('expenseDesc');
-            const amount = parseFloat(amountInput.value);
-            const desc = descInput.value;
-            if (isNaN(amount) || amount <= 0) return alert('Veuillez entrer un montant valide.');
-            
-            state.expenses.push({ id: 'e' + Date.now(), catId: state.currentView, amount, desc, timestamp: Date.now() });
-            saveState();
-            amountInput.value = '';
-            descInput.value = '';
-            closeModal();
+        function updateActiveProfile() {
+            const prof = getActiveProfile();
+            const newName = document.getElementById('editName').value;
+            const newWA = document.getElementById('editWA').value;
+            if (!newName || !newWA) return alert('Champs requis.');
+            prof.name = newName;
+            prof.whatsapp = newWA;
+            saveAppState();
+            alert('Profil mis à jour.');
             render();
         }
 
-        function deleteExpense(id) {
-            if (confirm('Supprimer cette dépense ?')) {
-                state.expenses = state.expenses.filter(e => e.id !== id);
-                saveState();
-                render();
-            }
+        function sendWhatsAppReport(period) {
+            const prof = getActiveProfile();
+            if (!prof.whatsapp || prof.whatsapp.length < 5) return alert('Veuillez configurer un numéro valide.');
+            
+            let periodLabel = period === 'day' ? 'du Jour' : period === 'week' ? 'de la Semaine' : 'du Mois';
+            let msg = `*FLOW by Rayane - Rapport ${periodLabel}*\n`;
+            msg += `_Utilisateur: ${prof.name}_\n\n`;
+
+            prof.categories.forEach(cat => {
+                const stats = calculateStats(prof, cat.id);
+                const current = stats[period];
+                const limit = cat.budget[period];
+                const perc = Math.min((current / limit) * 100, 100).toFixed(0);
+                const remaining = Math.max(0, limit - current).toFixed(0);
+                
+                msg += `*${cat.name}*\n`;
+                msg += `💰 Dépensé: ${current.toFixed(0)} MAD\n`;
+                msg += `📉 Restant: ${remaining} MAD\n`;
+                msg += `📊 Utilisation: ${perc}%\n\n`;
+            });
+
+            msg += `_Envoyé via FLOW by Rayane_`;
+            
+            const waUrl = `https://wa.me/${prof.whatsapp.replace(/\+/g, '').replace(/\s/g, '')}?text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
+            alert(`Rapport généré ! Confirmation : Envoi vers ${prof.whatsapp}`);
         }
 
+        // Generic Modal Management
+        function openModal(id) { document.getElementById('modalOverlay').classList.remove('hidden'); document.getElementById(id).classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); document.querySelectorAll('#modalOverlay > div').forEach(d => d.classList.add('hidden')); }
+        function openAddCategoryModal() { openModal('addCategoryModal'); }
+        function openAddExpenseModal() { 
+            const prof = getActiveProfile();
+            const cat = prof.categories.find(c => c.id === currentView);
+            document.getElementById('targetCatName').innerText = cat ? cat.name : "";
+            openModal('addExpenseModal'); 
+        }
         function openEditBudgetsModal() {
-            const cat = state.categories.find(c => c.id === state.currentView);
-            if (!cat) return;
+            const prof = getActiveProfile();
+            const cat = prof.categories.find(c => c.id === currentView);
             document.getElementById('budgetDay').value = cat.budget.day;
             document.getElementById('budgetWeek').value = cat.budget.week;
             document.getElementById('budgetMonth').value = cat.budget.month;
             openModal('editBudgetsModal');
         }
 
-        function saveBudgets() {
-            const idx = state.categories.findIndex(c => c.id === state.currentView);
-            if (idx === -1) return;
-            state.categories[idx].budget = {
-                day: parseFloat(document.getElementById('budgetDay').value) || 0,
-                week: parseFloat(document.getElementById('budgetWeek').value) || 0,
-                month: parseFloat(document.getElementById('budgetMonth').value) || 0
-            };
-            saveState();
+        function createNewCategory() {
+            const prof = getActiveProfile();
+            const name = document.getElementById('newCategoryName').value;
+            const icon = document.getElementById('newCategoryIcon').value || 'tag';
+            if (!name) return;
+            const newCat = { id: 'cat_' + Date.now(), name, icon, budget: { day: 100, week: 700, month: 3000 } };
+            prof.categories.push(newCat);
+            saveAppState();
+            closeModal();
+            navigate(newCat.id);
+        }
+
+        function deleteCategory(id) {
+            if (confirm('Supprimer cette catégorie ?')) {
+                const prof = getActiveProfile();
+                prof.categories = prof.categories.filter(c => c.id !== id);
+                prof.expenses = prof.expenses.filter(e => e.catId !== id);
+                saveAppState();
+                navigate('dashboard');
+            }
+        }
+
+        function saveExpense() {
+            const prof = getActiveProfile();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const desc = document.getElementById('expenseDesc').value;
+            if (isNaN(amount) || amount <= 0) return alert('Montant invalide.');
+            prof.expenses.push({ id: 'e' + Date.now(), catId: currentView, amount, desc, timestamp: Date.now() });
+            saveAppState();
             closeModal();
             render();
         }
 
-        function saveProfile() {
-            state.profile.name = document.getElementById('profileName').value;
-            state.profile.whatsapp = document.getElementById('profileWA').value;
-            saveState();
-            alert('Profil enregistré avec élégance.');
-            render();
+        function deleteExpense(id) {
+            if (confirm('Supprimer dépense ?')) {
+                const prof = getActiveProfile();
+                prof.expenses = prof.expenses.filter(e => e.id !== id);
+                saveAppState();
+                render();
+            }
         }
 
-        function sendWhatsAppReport() {
-            if (!state.profile.whatsapp) return alert('Veuillez renseigner votre numéro WhatsApp dans le profil.');
-            let msg = `*FLOW by Rayane - Rapport Financier*\n\n`;
-            state.categories.forEach(c => {
-                const s = calculateStats(c.id);
-                const remaining = Math.max(0, (c.budget.month - s.month));
-                msg += `*${c.name}*: Restant ${ remaining.toFixed(0) } MAD / ${c.budget.month} MAD\n`;
-            });
-            msg += `\n_Généré avec Flow_`;
-            window.open(`https://wa.me/${state.profile.whatsapp.replace(/\+/g, '').replace(/\s/g, '')}?text=${encodeURIComponent(msg)}`, '_blank');
+        function saveBudgets() {
+            const prof = getActiveProfile();
+            const cat = prof.categories.find(c => c.id === currentView);
+            cat.budget = {
+                day: parseFloat(document.getElementById('budgetDay').value) || 0,
+                week: parseFloat(document.getElementById('budgetWeek').value) || 0,
+                month: parseFloat(document.getElementById('budgetMonth').value) || 0
+            };
+            saveAppState();
+            closeModal();
+            render();
         }
 
         window.addEventListener('DOMContentLoaded', init);
